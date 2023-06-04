@@ -40,7 +40,7 @@ impl Lexer {
             '(' => Token{t: Reserved::LPAREN.to_string(), value: self.c.to_string(), filename: None, line: Some(self.line), position: Some(self.position)},
             ')' => Token{t: Reserved::RPAREN.to_string(), value: self.c.to_string(), filename: None, line: Some(self.line), position: Some(self.position)},
             ',' => Token{t: Reserved::COMMA.to_string(), value: self.c.to_string(), filename: None, line: Some(self.line), position: Some(self.position)},
-            '+' => Token{t: Reserved::PLUS.to_string(), value: self.c.to_string(), filename: None, line: Some(self.line), position: Some(self.position)},
+            '+' | '-' | '*' | '/' | '%' | '^' => Token{t: Reserved::ARITHMETIC.to_string(), value: self.c.to_string(), filename: None, line: Some(self.line), position: Some(self.position)},
             '{' => Token{t: Reserved::LBRACE.to_string(), value: self.c.to_string(), filename: None, line: Some(self.line), position: Some(self.position)},
             '}' => Token{t: Reserved::RBRACE.to_string(), value: self.c.to_string(), filename: None, line: Some(self.line), position: Some(self.position)},
             '\0' => Token{t: Reserved::EOF.to_string(), value: self.c.to_string(), filename: None, line: Some(self.line), position: Some(self.position)},
