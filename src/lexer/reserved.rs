@@ -34,4 +34,12 @@ impl Reserved {
             Reserved::LET => "LET",
         }
     }
+
+    pub fn dispatch_keyword(tok_str: &str) -> Reserved {
+        match tok_str {
+             "fn" => Reserved::FUNCTION,
+             "let" => Reserved::LET,
+            _ => Reserved::IDENT
+        }
+    }
 }
