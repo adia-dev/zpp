@@ -12,6 +12,7 @@ pub struct Lexer {
     position: usize,
     next_position: usize,
     c: char,
+    line: usize
 }
 
 impl Lexer {
@@ -21,6 +22,7 @@ impl Lexer {
             position: 0,
             next_position: 0,
             c: '\0',
+            line: 1
         };
 
         new_lexer.read_char();
@@ -29,37 +31,40 @@ impl Lexer {
     }
 
     pub fn next_token(&mut self) -> Token {
+
         self.maybe_read_whitespace();
 
         let new_token: Token = match self.c {
-            '=' => Token::new(Reserved::ASSIGN.as_str(), &self.c.to_string()),
-            ';' => Token::new(Reserved::SEMICOLON.as_str(), &self.c.to_string()),
-            '(' => Token::new(Reserved::LPAREN.as_str(), &self.c.to_string()),
-            ')' => Token::new(Reserved::RPAREN.as_str(), &self.c.to_string()),
-            ',' => Token::new(Reserved::COMMA.as_str(), &self.c.to_string()),
-            '+' => Token::new(Reserved::PLUS.as_str(), &self.c.to_string()),
-            '{' => Token::new(Reserved::LBRACE.as_str(), &self.c.to_string()),
-            '}' => Token::new(Reserved::RBRACE.as_str(), &self.c.to_string()),
-            '\0' => Token::new(Reserved::EOF.as_str(), &self.c.to_string()),
+            '=' => Token{t: Reserved::ASSIGN.to_string(), value: self.c.to_string(), filename: None, line: Some(self.line), position: Some(self.position)},
+            ';' => Token{t: Reserved::SEMICOLON.to_string(), value: self.c.to_string(), filename: None, line: Some(self.line), position: Some(self.position)},
+            '(' => Token{t: Reserved::LPAREN.to_string(), value: self.c.to_string(), filename: None, line: Some(self.line), position: Some(self.position)},
+            ')' => Token{t: Reserved::RPAREN.to_string(), value: self.c.to_string(), filename: None, line: Some(self.line), position: Some(self.position)},
+            ',' => Token{t: Reserved::COMMA.to_string(), value: self.c.to_string(), filename: None, line: Some(self.line), position: Some(self.position)},
+            '+' => Token{t: Reserved::PLUS.to_string(), value: self.c.to_string(), filename: None, line: Some(self.line), position: Some(self.position)},
+            '{' => Token{t: Reserved::LBRACE.to_string(), value: self.c.to_string(), filename: None, line: Some(self.line), position: Some(self.position)},
+            '}' => Token{t: Reserved::RBRACE.to_string(), value: self.c.to_string(), filename: None, line: Some(self.line), position: Some(self.position)},
+            '\0' => Token{t: Reserved::EOF.to_string(), value: self.c.to_string(), filename: None, line: Some(self.line), position: Some(self.position)},
             'a'..='z' | 'A'..='Z' | '_' => {
                 let identifier = self.maybe_read_identifier();
                 return Token {
-                    t: Reserved::dispatch_keyword(&identifier).as_str().to_string(),
+                    t: Reserved::dispatch_keyword(&identifier).to_string().to_string(),
                     value: identifier,
-                    line: None,
+                    line: Some(self.line),
+                    position: Some(self.position),
                     filename: None,
                 };
             }
             '0'..='9' => {
                 let number = self.maybe_read_number();
                 return Token {
-                    t: Reserved::INT.as_str().to_string(),
+                    t: Reserved::INT.to_string(),
                     value: number.to_string(),
-                    line: None,
+                    line: Some(self.line),
+                    position: Some(self.position),
                     filename: None,
                 };
             }
-            _ => Token::new(Reserved::ILLEGAL.as_str(), &self.c.to_string()),
+            _ => Token{t: Reserved::ILLEGAL.to_string(), value: self.c.to_string(), filename: None, line: Some(self.line), position: Some(self.position)},
         };
 
         self.read_char();
@@ -121,7 +126,11 @@ impl Lexer {
     fn maybe_read_whitespace(&mut self) {
         loop {
             match self.c {
-                ' ' | '\t' | '\n' | '\r' => {
+                '\n' | '\r' => {
+                    self.line += 1;
+                    self.read_char();
+                }
+                ' ' | '\t'  => {
                     self.read_char();
                 }
                 _ => break,

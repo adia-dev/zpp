@@ -86,7 +86,7 @@ mod lexer_tests {
         for (key, value) in tokens.into_iter() {
             let tok: Token = lexer.next_token();
 
-            println!("type: {}, value: {}", tok.t, tok.value);
+            println!("type: {}, value: {}, line: {}, position: {}", tok.t, tok.value, tok.line.unwrap(), tok.position.unwrap() - tok.value.len());
 
             assert_eq!(tok.t, key);
             assert_eq!(tok.value, value);
