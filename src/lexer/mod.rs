@@ -59,10 +59,9 @@ impl Lexer {
 
 #[cfg(test)]
 mod lexer_tests {
-    use std::collections::BTreeMap;
-    use std::{assert_eq, collections::HashMap};
 
-    use crate::lexer::token::TokenType;
+    use std::assert_eq;
+
     use crate::lexer::{reserved::Reserved, token::Token, Lexer};
 
     const INPUT: &'static str = "=+(){},;";

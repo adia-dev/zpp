@@ -1,4 +1,3 @@
-
 pub type TokenType = String;
 
 #[derive(Default, Debug)]

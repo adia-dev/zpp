@@ -12,7 +12,7 @@ pub enum Reserved {
     LBRACE,
     RBRACE,
     FUNCTION,
-    LET
+    LET,
 }
 
 impl Reserved {
@@ -35,4 +35,3 @@ impl Reserved {
         }
     }
 }
-
