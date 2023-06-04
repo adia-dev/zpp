@@ -65,19 +65,19 @@ mod lexer_tests {
     use crate::lexer::token::TokenType;
     use crate::lexer::{reserved::Reserved, token::Token, Lexer};
 
-    const INPUT: &'static str = "=,{(+});";
+    const INPUT: &'static str = "=+(){},;";
 
     #[test]
     fn test_next_token() {
-        let mut tokens: BTreeMap<&str, &str> = BTreeMap::new();
-        tokens.insert(Reserved::ASSIGN.as_str(), "=");
-        tokens.insert(Reserved::PLUS.as_str(), "+");
-        tokens.insert(Reserved::LPAREN.as_str(), "(");
-        tokens.insert(Reserved::RPAREN.as_str(), ")");
-        tokens.insert(Reserved::LBRACE.as_str(), "{");
-        tokens.insert(Reserved::RBRACE.as_str(), "}");
-        tokens.insert(Reserved::COMMA.as_str(), ",");
-        tokens.insert(Reserved::SEMICOLON.as_str(), ";");
+        let mut tokens: Vec<(&str, &str)> = Vec::new();
+        tokens.push((Reserved::ASSIGN.as_str(), "="));
+        tokens.push((Reserved::PLUS.as_str(), "+"));
+        tokens.push((Reserved::LPAREN.as_str(), "("));
+        tokens.push((Reserved::RPAREN.as_str(), ")"));
+        tokens.push((Reserved::LBRACE.as_str(), "{"));
+        tokens.push((Reserved::RBRACE.as_str(), "}"));
+        tokens.push((Reserved::COMMA.as_str(), ","));
+        tokens.push((Reserved::SEMICOLON.as_str(), ";"));
 
         let mut lexer = Lexer::new(INPUT.chars().collect());
 
