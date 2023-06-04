@@ -86,10 +86,50 @@ mod lexer_tests {
         for (key, value) in tokens.into_iter() {
             let tok: Token = lexer.next_token();
 
-            println!("type: {}, value: {}, line: {}, position: {}", tok.t, tok.value, tok.line.unwrap(), tok.position.unwrap() - tok.value.len());
+            assert_eq!(tok.t, key);
+            assert_eq!(tok.value, value);
+        }
+    }
+
+    #[test]
+    fn test_token_number() {
+        let code: &'static str = r#"
+            let i = 0;
+            let j = 0;
+
+            let result = i + j;
+        "#;
+
+        let mut lexer = Lexer::new(code.chars().collect());
+
+        let mut tokens: Vec<(&str, &str, usize)> = Vec::new();
+
+        tokens.push((Reserved::LET.as_str(), "let", 2));
+        tokens.push((Reserved::IDENT.as_str(), "i", 2));
+        tokens.push((Reserved::ASSIGN.as_str(), "=", 2));
+        tokens.push((Reserved::INT.as_str(), "0", 2));
+        tokens.push((Reserved::SEMICOLON.as_str(), ";", 2));
+
+        tokens.push((Reserved::LET.as_str(), "let", 3));
+        tokens.push((Reserved::IDENT.as_str(), "j", 3));
+        tokens.push((Reserved::ASSIGN.as_str(), "=", 3));
+        tokens.push((Reserved::INT.as_str(), "0", 3));
+        tokens.push((Reserved::SEMICOLON.as_str(), ";", 3));
+
+        tokens.push((Reserved::LET.as_str(), "let", 5));
+        tokens.push((Reserved::IDENT.as_str(), "result", 5));
+        tokens.push((Reserved::ASSIGN.as_str(), "=", 5));
+        tokens.push((Reserved::IDENT.as_str(), "i", 5));
+        tokens.push((Reserved::PLUS.as_str(), "+", 5));
+        tokens.push((Reserved::IDENT.as_str(), "j", 5));
+        tokens.push((Reserved::SEMICOLON.as_str(), ";", 5));
+
+        for (key, value, line) in tokens.into_iter() {
+            let tok: Token = lexer.next_token();
 
             assert_eq!(tok.t, key);
             assert_eq!(tok.value, value);
+            assert_eq!(tok.line.unwrap(), line);
         }
     }
 }
