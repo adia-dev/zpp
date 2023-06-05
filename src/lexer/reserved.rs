@@ -1,4 +1,3 @@
-
 #[derive(Debug, Clone, PartialEq, Eq)] // Example derives
 pub enum Keyword {
     LET,       // Represents the "let" keyword
@@ -8,6 +7,12 @@ pub enum Keyword {
     FOR,       // Represents the "for" keyword
     WHILE,     // Represents the "while" keyword
     FUNCTION,  // Represents the "function" keyword
+    IF,        // Represents the "if" keyword
+    ELSE,      // Represents the "else" keyword
+    DO,        // Represents the "DO" keyword
+    END,       // Represents the "END" keyword
+    TRUE,      // Represents the "true" keyword
+    FALSE,     // Represents the "false" keyword
     UNDEFINED, // Represents an undefined or unrecognized keyword
 }
 
@@ -18,17 +23,22 @@ pub enum Reserved {
     IDENT,            // Represents an identifier
     INT,              // Represents an integer
     ASSIGN,           // Represents the assignment operator (=)
+    LESS,             // Represents the assignment operator (<)
+    GREATER,          // Represents the assignment operator (>)
     ARITHMETIC,       // Represents arithmetic operators (+, -, *, /, %)
     BIT_OPERATOR,     // Represents bitwise operators (&, |, ~, ^)
     COMMA,            // Represents a comma (,)
+    COLON,            // Represents a colon (:)
     SEMICOLON,        // Represents a semicolon (;)
+    DQUOTE,           // Represents a semicolon (")
+    QUOTE,            // Represents a semicolon (')
+    BACKTICK,         // Represents a semicolon (`)
     LPAREN,           // Represents a left parenthesis (()
     RPAREN,           // Represents a right parenthesis ())
     LBRACE,           // Represents a left brace ({)
     RBRACE,           // Represents a right brace (})
     KEYWORD(Keyword), // Represents a keyword (custom type)
 }
-
 
 impl Reserved {
     /// Returns the string representation of the Reserved variant.
@@ -39,10 +49,16 @@ impl Reserved {
             Reserved::IDENT => "IDENT",
             Reserved::INT => "INT",
             Reserved::ASSIGN => "ASSIGN",
+            Reserved::LESS => "LESS",
+            Reserved::GREATER => "LESS",
             Reserved::ARITHMETIC => "ARITHMETIC",
             Reserved::BIT_OPERATOR => "BIT_OPERATOR",
             Reserved::COMMA => "COMMA",
+            Reserved::COLON => "COLON",
             Reserved::SEMICOLON => "SEMICOLON",
+            Reserved::QUOTE => "QUOTE",
+            Reserved::DQUOTE => "DQUOTE",
+            Reserved::BACKTICK => "BACKTICK",
             Reserved::LPAREN => "LPAREN",
             Reserved::RPAREN => "RPAREN",
             Reserved::LBRACE => "LBRACE",
@@ -65,6 +81,12 @@ impl Reserved {
             "for" => Keyword::FOR,
             "while" => Keyword::WHILE,
             "fn" => Keyword::FUNCTION,
+            "if" => Keyword::IF,
+            "else" => Keyword::ELSE,
+            "do" => Keyword::DO,
+            "end" => Keyword::END,
+            "true" => Keyword::TRUE,
+            "false" => Keyword::FALSE,
             _ => Keyword::UNDEFINED,
         }
     }
@@ -81,6 +103,12 @@ impl Keyword {
             Keyword::FOR => "FOR",
             Keyword::WHILE => "WHILE",
             Keyword::FUNCTION => "FUNCTION",
+            Keyword::IF => "IF",
+            Keyword::ELSE => "ELSE",
+            Keyword::DO => "DO",
+            Keyword::END => "END",
+            Keyword::TRUE => "TRUE",
+            Keyword::FALSE => "FALSE",
             _ => "IDENT",
         }
     }

@@ -140,4 +140,118 @@ mod lexer_tests {
             assert_eq!(tok.line.unwrap(), line);
         }
     }
+
+    #[test]
+    fn test_control_tokens() {
+        let code: &'static str = r#"
+            if true {
+                print(true);
+            } else {
+                return false;
+            }
+
+            if a > b {
+                print("hot");
+            } else {
+                print("cold");
+            }
+
+            if true do: print(true), else: print(false)
+
+            if true do
+                print(true);
+            end
+        "#;
+        let mut tokens: Vec<(&str, &str)> = Vec::new();
+
+        tokens.push((Reserved::KEYWORD(Keyword::IF).as_str(), "if"));
+        tokens.push((Reserved::KEYWORD(Keyword::TRUE).as_str(), "true"));
+        tokens.push((Reserved::LBRACE.as_str(), "{"));
+        tokens.push((Reserved::IDENT.as_str(), "print"));
+        tokens.push((Reserved::LPAREN.as_str(), "("));
+        tokens.push((Reserved::KEYWORD(Keyword::TRUE).as_str(), "true"));
+        tokens.push((Reserved::RPAREN.as_str(), ")"));
+        tokens.push((Reserved::SEMICOLON.as_str(), ";"));
+        tokens.push((Reserved::RBRACE.as_str(), "}"));
+        tokens.push((Reserved::KEYWORD(Keyword::ELSE).as_str(), "else"));
+        tokens.push((Reserved::LBRACE.as_str(), "{"));
+        tokens.push((Reserved::KEYWORD(Keyword::RETURN).as_str(), "return"));
+        tokens.push((Reserved::KEYWORD(Keyword::FALSE).as_str(), "false"));
+        tokens.push((Reserved::SEMICOLON.as_str(), ";"));
+        tokens.push((Reserved::RBRACE.as_str(), "}"));
+
+        tokens.push((Reserved::KEYWORD(Keyword::IF).as_str(), "if"));
+        tokens.push((Reserved::IDENT.as_str(), "a"));
+        tokens.push((Reserved::GREATER.as_str(), ">"));
+        tokens.push((Reserved::IDENT.as_str(), "b"));
+        tokens.push((Reserved::LBRACE.as_str(), "{"));
+        tokens.push((Reserved::IDENT.as_str(), "print"));
+        tokens.push((Reserved::LPAREN.as_str(), "("));
+        tokens.push((Reserved::DQUOTE.as_str(), "\""));
+        tokens.push((Reserved::IDENT.as_str(), "hot"));
+        tokens.push((Reserved::DQUOTE.as_str(), "\""));
+        tokens.push((Reserved::RPAREN.as_str(), ")"));
+        tokens.push((Reserved::SEMICOLON.as_str(), ";"));
+        tokens.push((Reserved::RBRACE.as_str(), "}"));
+        tokens.push((Reserved::KEYWORD(Keyword::ELSE).as_str(), "else"));
+        tokens.push((Reserved::LBRACE.as_str(), "{"));
+        tokens.push((Reserved::IDENT.as_str(), "print"));
+        tokens.push((Reserved::LPAREN.as_str(), "("));
+        tokens.push((Reserved::DQUOTE.as_str(), "\""));
+        tokens.push((Reserved::IDENT.as_str(), "cold"));
+        tokens.push((Reserved::DQUOTE.as_str(), "\""));
+        tokens.push((Reserved::RPAREN.as_str(), ")"));
+        tokens.push((Reserved::SEMICOLON.as_str(), ";"));
+        tokens.push((Reserved::RBRACE.as_str(), "}"));
+
+        tokens.push((Reserved::KEYWORD(Keyword::IF).as_str(), "if"));
+        tokens.push((Reserved::KEYWORD(Keyword::TRUE).as_str(), "true"));
+        tokens.push((Reserved::KEYWORD(Keyword::DO).as_str(), "do"));
+        tokens.push((Reserved::COLON.as_str(), ":"));
+        tokens.push((Reserved::IDENT.as_str(), "print"));
+        tokens.push((Reserved::LPAREN.as_str(), "("));
+        tokens.push((Reserved::KEYWORD(Keyword::TRUE).as_str(), "true"));
+        tokens.push((Reserved::RPAREN.as_str(), ")"));
+        tokens.push((Reserved::COMMA.as_str(), ","));
+        tokens.push((Reserved::KEYWORD(Keyword::ELSE).as_str(), "else"));
+        tokens.push((Reserved::COLON.as_str(), ":"));
+        tokens.push((Reserved::IDENT.as_str(), "print"));
+        tokens.push((Reserved::LPAREN.as_str(), "("));
+        tokens.push((Reserved::KEYWORD(Keyword::FALSE).as_str(), "false"));
+        tokens.push((Reserved::RPAREN.as_str(), ")"));
+
+        tokens.push((Reserved::KEYWORD(Keyword::IF).as_str(), "if"));
+        tokens.push((Reserved::KEYWORD(Keyword::TRUE).as_str(), "true"));
+        tokens.push((Reserved::KEYWORD(Keyword::DO).as_str(), "do"));
+        tokens.push((Reserved::IDENT.as_str(), "print"));
+        tokens.push((Reserved::LPAREN.as_str(), "("));
+        tokens.push((Reserved::KEYWORD(Keyword::TRUE).as_str(), "true"));
+        tokens.push((Reserved::RPAREN.as_str(), ")"));
+        tokens.push((Reserved::SEMICOLON.as_str(), ";"));
+        tokens.push((Reserved::KEYWORD(Keyword::END).as_str(), "end"));
+
+        let mut lexer = Lexer::new(code.chars().collect());
+
+        for (key, value) in tokens {
+            let token = lexer.next_token();
+
+            assert_eq!(token.t, key);
+            assert_eq!(token.value, value);
+        }
+    }
+
+    #[test]
+    fn test_peek_next_token_in_code() {
+        let code: &'static str = r#"
+            ++--**//&&||..;
+        "#;
+        let mut tokens: Vec<(&str, &str)> = Vec::new();
+
+        tokens.push((Reserved::ARITHMETIC.as_str(), "++"));
+        tokens.push((Reserved::ARITHMETIC.as_str(), "--"));
+        tokens.push((Reserved::ARITHMETIC.as_str(), "**"));
+        tokens.push((Reserved::ARITHMETIC.as_str(), "//"));
+
+        let mut lexer = Lexer::new(CODE.chars().collect());
+    }
 }

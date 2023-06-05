@@ -44,6 +44,7 @@ impl Lexer {
         match self.c {
             '=' => new_token.t = Reserved::ASSIGN.to_string(),
             ';' => new_token.t = Reserved::SEMICOLON.to_string(),
+            ':' => new_token.t = Reserved::COLON.to_string(),
             '(' => new_token.t = Reserved::LPAREN.to_string(),
             ')' => new_token.t = Reserved::RPAREN.to_string(),
             ',' => new_token.t = Reserved::COMMA.to_string(),
@@ -51,6 +52,11 @@ impl Lexer {
             '&' | '|' | '~' | '^' => new_token.t = Reserved::BIT_OPERATOR.to_string(),
             '{' => new_token.t = Reserved::LBRACE.to_string(),
             '}' => new_token.t = Reserved::RBRACE.to_string(),
+            '<' => new_token.t = Reserved::LESS.to_string(),
+            '>' => new_token.t = Reserved::GREATER.to_string(),
+            '"' => new_token.t = Reserved::DQUOTE.to_string(),
+            '\'' => new_token.t = Reserved::QUOTE.to_string(),
+            '`' => new_token.t = Reserved::BACKTICK.to_string(),
             '\0' => new_token.t = Reserved::EOF.to_string(),
             'a'..='z' | 'A'..='Z' | '_' => {
                 let identifier = self.maybe_read_identifier();

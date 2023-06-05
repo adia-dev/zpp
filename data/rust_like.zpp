@@ -1,0 +1,26 @@
+
+fn main() {
+    let x = 10;
+    const PI: f32 = 3.14;
+    let mut y = 5;
+    
+    for i in 0..10 {
+        if i % 2 == 0 {
+            println!("Even number: {}", i);
+        } else {
+            println!("Odd number: {}", i);
+        }
+    }
+    
+    while y > 0 {
+        println!("Countdown: {}", y);
+        y -= 1;
+    }
+    
+    fn add(a: i32, b: i32) -> i32 {
+        return a + b;
+    }
+    
+    let result = add(x, y);
+    println!("Result: {}", result);
+}
