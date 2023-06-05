@@ -1,28 +1,27 @@
-use super::{keyword::Keyword, arithmetic::Arithmetic};
+use super::{arithmetic::Arithmetic, cmp::Cmp, keyword::Keyword};
 
 #[derive(Default, Debug, Clone, PartialEq, Eq)] // Example derives
 pub enum TokenType {
     #[default]
     ILLEGAL, // Represents an illegal or invalid character
-    EOF,              // Represents the end of file marker
-    IDENT,            // Represents an identifier
-    INT,              // Represents an integer
-    ASSIGN,           // Represents the assignment operator (=)
-    LESS,             // Represents the assignment operator (<)
-    GREATER,          // Represents the assignment operator (>)
-    BITOP,            // Represents bitwise operators (&, |, ~, ^)
-    COMMA,            // Represents a comma (,)
-    COLON,            // Represents a colon (:)
-    SEMICOLON,        // Represents a semicolon (;)
-    DQUOTE,           // Represents a semicolon (")
-    QUOTE,            // Represents a semicolon (')
-    BACKTICK,         // Represents a semicolon (`)
-    LPAREN,           // Represents a left parenthesis (()
-    RPAREN,           // Represents a right parenthesis ())
-    LBRACE,           // Represents a left brace ({)
-    RBRACE,           // Represents a right brace (})
-    ARITHMETIC(Arithmetic),
-    KEYWORD(Keyword), // Represents a keyword (custom type)
+    EOF,                    // Represents the end of file marker
+    IDENT,                  // Represents an identifier
+    INT,                    // Represents an integer
+    ASSIGN,                 // Represents the assignment operator (=)
+    BITOP,                  // Represents bitwise operators (&, |, ~, ^)
+    COMMA,                  // Represents a comma (,)
+    COLON,                  // Represents a colon (:)
+    SEMICOLON,              // Represents a semicolon (;)
+    DQUOTE,                 // Represents a semicolon (")
+    QUOTE,                  // Represents a semicolon (')
+    BACKTICK,               // Represents a semicolon (`)
+    LPAREN,                 // Represents a left parenthesis (()
+    RPAREN,                 // Represents a right parenthesis ())
+    LBRACE,                 // Represents a left brace ({)
+    RBRACE,                 // Represents a right brace (})
+    CMP(Cmp),               // Represents comparison operators
+    ARITHMETIC(Arithmetic), // Represents arithmetic operators
+    KEYWORD(Keyword),       // Represents a keyword (custom type)
 }
 
 impl TokenType {
@@ -34,8 +33,6 @@ impl TokenType {
             TokenType::IDENT => "IDENT",
             TokenType::INT => "INT",
             TokenType::ASSIGN => "ASSIGN",
-            TokenType::LESS => "LESS",
-            TokenType::GREATER => "LESS",
             TokenType::BITOP => "BITOP",
             TokenType::COMMA => "COMMA",
             TokenType::COLON => "COLON",
@@ -47,6 +44,7 @@ impl TokenType {
             TokenType::RPAREN => "RPAREN",
             TokenType::LBRACE => "LBRACE",
             TokenType::RBRACE => "RBRACE",
+            TokenType::CMP(c) => c.as_str(),
             TokenType::ARITHMETIC(a) => a.as_str(),
             TokenType::KEYWORD(kw) => kw.as_str(),
         }

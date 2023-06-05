@@ -4,7 +4,7 @@ mod lexer_tests {
     use std::assert_eq;
 
     use crate::{
-        enums::{keyword::Keyword, token_type::TokenType, arithmetic::Arithmetic},
+        enums::{arithmetic::Arithmetic, cmp::Cmp, keyword::Keyword, token_type::TokenType},
         lexer::Lexer,
         token::Token,
     };
@@ -181,7 +181,7 @@ mod lexer_tests {
 
         tokens.push((TokenType::KEYWORD(Keyword::IF), "if"));
         tokens.push((TokenType::IDENT, "a"));
-        tokens.push((TokenType::GREATER, ">"));
+        tokens.push((TokenType::CMP(Cmp::GT), ">"));
         tokens.push((TokenType::IDENT, "b"));
         tokens.push((TokenType::LBRACE, "{"));
         tokens.push((TokenType::IDENT, "print"));

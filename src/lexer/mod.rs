@@ -1,5 +1,5 @@
 use crate::{
-    enums::{arithmetic::Arithmetic, keyword::Keyword, token_type::TokenType},
+    enums::{arithmetic::Arithmetic, cmp::Cmp, keyword::Keyword, token_type::TokenType},
     token::Token,
 };
 
@@ -50,15 +50,19 @@ impl Lexer {
             '+' | '-' | '*' | '/' | '%' => {
                 if let Some(arithmetic) = Arithmetic::from_str(self.c.to_string().as_str()) {
                     new_token.t = TokenType::ARITHMETIC(arithmetic);
-                } else{
+                } else {
                     new_token.t = TokenType::ILLEGAL;
                 }
             }
             '&' | '|' | '~' | '^' => new_token.t = TokenType::BITOP,
             '{' => new_token.t = TokenType::LBRACE,
             '}' => new_token.t = TokenType::RBRACE,
-            '<' => new_token.t = TokenType::LESS,
-            '>' => new_token.t = TokenType::GREATER,
+            '<' => {
+                new_token.t = TokenType::CMP(Cmp::LT);
+            }
+            '>' => {
+                new_token.t = TokenType::CMP(Cmp::GT);
+            }
             '"' => new_token.t = TokenType::DQUOTE,
             '\'' => new_token.t = TokenType::QUOTE,
             '`' => new_token.t = TokenType::BACKTICK,
