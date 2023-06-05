@@ -1,10 +1,9 @@
-#[allow(dead_code)]
-#[allow(unused)]
-use self::{reserved::Reserved, token::Token};
+use crate::{
+    enums::{keyword::Keyword, token_type::TokenType},
+    token::Token,
+};
 
-pub mod reserved;
 mod test;
-pub mod token;
 
 #[derive(Default, Debug)]
 pub struct Lexer {
@@ -34,7 +33,7 @@ impl Lexer {
         self.maybe_read_whitespace();
 
         let mut new_token: Token = Token {
-            t: Reserved::KEYWORD(reserved::Keyword::UNDEFINED).to_string(),
+            t: TokenType::KEYWORD(Keyword::UNDEFINED),
             value: self.c.to_string(),
             filename: None,
             line: Some(self.line),
@@ -42,39 +41,47 @@ impl Lexer {
         };
 
         match self.c {
-            '=' => new_token.t = Reserved::ASSIGN.to_string(),
-            ';' => new_token.t = Reserved::SEMICOLON.to_string(),
-            ':' => new_token.t = Reserved::COLON.to_string(),
-            '(' => new_token.t = Reserved::LPAREN.to_string(),
-            ')' => new_token.t = Reserved::RPAREN.to_string(),
-            ',' => new_token.t = Reserved::COMMA.to_string(),
-            '+' | '-' | '*' | '/' | '%' => new_token.t = Reserved::ARITHMETIC.to_string(),
-            '&' | '|' | '~' | '^' => new_token.t = Reserved::BITOP.to_string(),
-            '{' => new_token.t = Reserved::LBRACE.to_string(),
-            '}' => new_token.t = Reserved::RBRACE.to_string(),
-            '<' => new_token.t = Reserved::LESS.to_string(),
-            '>' => new_token.t = Reserved::GREATER.to_string(),
-            '"' => new_token.t = Reserved::DQUOTE.to_string(),
-            '\'' => new_token.t = Reserved::QUOTE.to_string(),
-            '`' => new_token.t = Reserved::BACKTICK.to_string(),
-            '\0' => new_token.t = Reserved::EOF.to_string(),
+            '=' => new_token.t = TokenType::ASSIGN,
+            ';' => new_token.t = TokenType::SEMICOLON,
+            ':' => new_token.t = TokenType::COLON,
+            '(' => new_token.t = TokenType::LPAREN,
+            ')' => new_token.t = TokenType::RPAREN,
+            ',' => new_token.t = TokenType::COMMA,
+            '+' | '-' | '*' | '/' | '%' => new_token.t = TokenType::ARITHMETIC,
+            '&' | '|' | '~' | '^' => new_token.t = TokenType::BITOP,
+            '{' => new_token.t = TokenType::LBRACE,
+            '}' => new_token.t = TokenType::RBRACE,
+            '<' => new_token.t = TokenType::LESS,
+            '>' => new_token.t = TokenType::GREATER,
+            '"' => new_token.t = TokenType::DQUOTE,
+            '\'' => new_token.t = TokenType::QUOTE,
+            '`' => new_token.t = TokenType::BACKTICK,
+            '\0' => new_token.t = TokenType::EOF,
             'a'..='z' | 'A'..='Z' | '_' => {
                 let identifier = self.maybe_read_identifier();
-                new_token.t = Reserved::dispatch_keyword(&identifier).to_string();
+                let keyword = TokenType::dispatch_keyword(&identifier);
+
+                if keyword != Keyword::UNDEFINED {
+                    new_token.t = TokenType::KEYWORD(keyword);
+                } else {
+                    new_token.t = TokenType::IDENT;
+                }
+
                 new_token.value = identifier;
+
                 return new_token;
             }
             '0'..='9' => {
                 let number = self.maybe_read_number();
                 return Token {
-                    t: Reserved::INT.to_string(),
+                    t: TokenType::INT,
                     value: number.to_string(),
                     line: Some(self.line),
                     position: Some(self.position),
                     filename: None,
                 };
             }
-            _ => new_token.t = Reserved::ILLEGAL.to_string(),
+            _ => new_token.t = TokenType::ILLEGAL,
         };
 
         self.read_char();

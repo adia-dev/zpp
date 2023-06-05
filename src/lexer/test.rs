@@ -3,14 +3,13 @@ mod lexer_tests {
 
     use std::assert_eq;
 
-    use crate::lexer::{
-        reserved::{Keyword, Reserved},
+    use crate::{
+        enums::{keyword::Keyword, token_type::TokenType},
+        lexer::Lexer,
         token::Token,
-        Lexer,
     };
 
     const INPUT: &'static str = "=+(){},;";
-    const ZPP_FILES_DIR: &'static str = "data/";
     const CODE: &'static str = r#"let five = 5;
         let ten = 10;
 
@@ -22,15 +21,15 @@ mod lexer_tests {
 
     #[test]
     fn test_next_token_in_sample() {
-        let mut tokens: Vec<(&str, &str)> = Vec::new();
-        tokens.push((Reserved::ASSIGN.as_str(), "="));
-        tokens.push((Reserved::ARITHMETIC.as_str(), "+"));
-        tokens.push((Reserved::LPAREN.as_str(), "("));
-        tokens.push((Reserved::RPAREN.as_str(), ")"));
-        tokens.push((Reserved::LBRACE.as_str(), "{"));
-        tokens.push((Reserved::RBRACE.as_str(), "}"));
-        tokens.push((Reserved::COMMA.as_str(), ","));
-        tokens.push((Reserved::SEMICOLON.as_str(), ";"));
+        let mut tokens: Vec<(TokenType, &str)> = Vec::new();
+        tokens.push((TokenType::ASSIGN, "="));
+        tokens.push((TokenType::ARITHMETIC, "+"));
+        tokens.push((TokenType::LPAREN, "("));
+        tokens.push((TokenType::RPAREN, ")"));
+        tokens.push((TokenType::LBRACE, "{"));
+        tokens.push((TokenType::RBRACE, "}"));
+        tokens.push((TokenType::COMMA, ","));
+        tokens.push((TokenType::SEMICOLON, ";"));
 
         let mut lexer = Lexer::new(INPUT.chars().collect());
 
@@ -44,46 +43,46 @@ mod lexer_tests {
 
     #[test]
     fn test_next_token_in_code() {
-        let mut tokens: Vec<(&str, &str)> = Vec::new();
+        let mut tokens: Vec<(TokenType, &str)> = Vec::new();
 
-        tokens.push((Reserved::KEYWORD(Keyword::LET).as_str(), "let"));
-        tokens.push((Reserved::IDENT.as_str(), "five"));
-        tokens.push((Reserved::ASSIGN.as_str(), "="));
-        tokens.push((Reserved::INT.as_str(), "5"));
-        tokens.push((Reserved::SEMICOLON.as_str(), ";"));
+        tokens.push((TokenType::KEYWORD(Keyword::LET), "let"));
+        tokens.push((TokenType::IDENT, "five"));
+        tokens.push((TokenType::ASSIGN, "="));
+        tokens.push((TokenType::INT, "5"));
+        tokens.push((TokenType::SEMICOLON, ";"));
 
-        tokens.push((Reserved::KEYWORD(Keyword::LET).as_str(), "let"));
-        tokens.push((Reserved::IDENT.as_str(), "ten"));
-        tokens.push((Reserved::ASSIGN.as_str(), "="));
-        tokens.push((Reserved::INT.as_str(), "10"));
-        tokens.push((Reserved::SEMICOLON.as_str(), ";"));
+        tokens.push((TokenType::KEYWORD(Keyword::LET), "let"));
+        tokens.push((TokenType::IDENT, "ten"));
+        tokens.push((TokenType::ASSIGN, "="));
+        tokens.push((TokenType::INT, "10"));
+        tokens.push((TokenType::SEMICOLON, ";"));
 
-        tokens.push((Reserved::KEYWORD(Keyword::LET).as_str(), "let"));
-        tokens.push((Reserved::IDENT.as_str(), "add"));
-        tokens.push((Reserved::ASSIGN.as_str(), "="));
-        tokens.push((Reserved::KEYWORD(Keyword::FUNCTION).as_str(), "fn"));
-        tokens.push((Reserved::LPAREN.as_str(), "("));
-        tokens.push((Reserved::IDENT.as_str(), "x"));
-        tokens.push((Reserved::COMMA.as_str(), ","));
-        tokens.push((Reserved::IDENT.as_str(), "y"));
-        tokens.push((Reserved::RPAREN.as_str(), ")"));
-        tokens.push((Reserved::LBRACE.as_str(), "{"));
-        tokens.push((Reserved::IDENT.as_str(), "x"));
-        tokens.push((Reserved::ARITHMETIC.as_str(), "+"));
-        tokens.push((Reserved::IDENT.as_str(), "y"));
-        tokens.push((Reserved::RBRACE.as_str(), "}"));
+        tokens.push((TokenType::KEYWORD(Keyword::LET), "let"));
+        tokens.push((TokenType::IDENT, "add"));
+        tokens.push((TokenType::ASSIGN, "="));
+        tokens.push((TokenType::KEYWORD(Keyword::FUNCTION), "fn"));
+        tokens.push((TokenType::LPAREN, "("));
+        tokens.push((TokenType::IDENT, "x"));
+        tokens.push((TokenType::COMMA, ","));
+        tokens.push((TokenType::IDENT, "y"));
+        tokens.push((TokenType::RPAREN, ")"));
+        tokens.push((TokenType::LBRACE, "{"));
+        tokens.push((TokenType::IDENT, "x"));
+        tokens.push((TokenType::ARITHMETIC, "+"));
+        tokens.push((TokenType::IDENT, "y"));
+        tokens.push((TokenType::RBRACE, "}"));
 
-        tokens.push((Reserved::KEYWORD(Keyword::LET).as_str(), "let"));
-        tokens.push((Reserved::IDENT.as_str(), "result"));
-        tokens.push((Reserved::ASSIGN.as_str(), "="));
-        tokens.push((Reserved::IDENT.as_str(), "add"));
-        tokens.push((Reserved::LPAREN.as_str(), "("));
-        tokens.push((Reserved::IDENT.as_str(), "five"));
-        tokens.push((Reserved::COMMA.as_str(), ","));
-        tokens.push((Reserved::IDENT.as_str(), "ten"));
-        tokens.push((Reserved::RPAREN.as_str(), ")"));
-        tokens.push((Reserved::SEMICOLON.as_str(), ";"));
-        tokens.push((Reserved::EOF.as_str(), "\0"));
+        tokens.push((TokenType::KEYWORD(Keyword::LET), "let"));
+        tokens.push((TokenType::IDENT, "result"));
+        tokens.push((TokenType::ASSIGN, "="));
+        tokens.push((TokenType::IDENT, "add"));
+        tokens.push((TokenType::LPAREN, "("));
+        tokens.push((TokenType::IDENT, "five"));
+        tokens.push((TokenType::COMMA, ","));
+        tokens.push((TokenType::IDENT, "ten"));
+        tokens.push((TokenType::RPAREN, ")"));
+        tokens.push((TokenType::SEMICOLON, ";"));
+        tokens.push((TokenType::EOF, "\0"));
 
         let mut lexer = Lexer::new(CODE.chars().collect());
 
@@ -108,27 +107,27 @@ mod lexer_tests {
 
         let mut lexer = Lexer::new(code.chars().collect());
 
-        let mut tokens: Vec<(&str, &str, usize)> = Vec::new();
+        let mut tokens: Vec<(TokenType, &str, usize)> = Vec::new();
 
-        tokens.push((Reserved::KEYWORD(Keyword::CONST).as_str(), "const", 2));
-        tokens.push((Reserved::IDENT.as_str(), "i", 2));
-        tokens.push((Reserved::ASSIGN.as_str(), "=", 2));
-        tokens.push((Reserved::INT.as_str(), "0", 2));
-        tokens.push((Reserved::SEMICOLON.as_str(), ";", 2));
+        tokens.push((TokenType::KEYWORD(Keyword::CONST), "const", 2));
+        tokens.push((TokenType::IDENT, "i", 2));
+        tokens.push((TokenType::ASSIGN, "=", 2));
+        tokens.push((TokenType::INT, "0", 2));
+        tokens.push((TokenType::SEMICOLON, ";", 2));
 
-        tokens.push((Reserved::KEYWORD(Keyword::LET).as_str(), "let", 3));
-        tokens.push((Reserved::IDENT.as_str(), "j", 3));
-        tokens.push((Reserved::ASSIGN.as_str(), "=", 3));
-        tokens.push((Reserved::INT.as_str(), "0", 3));
-        tokens.push((Reserved::SEMICOLON.as_str(), ";", 3));
+        tokens.push((TokenType::KEYWORD(Keyword::LET), "let", 3));
+        tokens.push((TokenType::IDENT, "j", 3));
+        tokens.push((TokenType::ASSIGN, "=", 3));
+        tokens.push((TokenType::INT, "0", 3));
+        tokens.push((TokenType::SEMICOLON, ";", 3));
 
-        tokens.push((Reserved::KEYWORD(Keyword::LET).as_str(), "let", 5));
-        tokens.push((Reserved::IDENT.as_str(), "result", 5));
-        tokens.push((Reserved::ASSIGN.as_str(), "=", 5));
-        tokens.push((Reserved::IDENT.as_str(), "i", 5));
-        tokens.push((Reserved::ARITHMETIC.as_str(), "+", 5));
-        tokens.push((Reserved::IDENT.as_str(), "j", 5));
-        tokens.push((Reserved::SEMICOLON.as_str(), ";", 5));
+        tokens.push((TokenType::KEYWORD(Keyword::LET), "let", 5));
+        tokens.push((TokenType::IDENT, "result", 5));
+        tokens.push((TokenType::ASSIGN, "=", 5));
+        tokens.push((TokenType::IDENT, "i", 5));
+        tokens.push((TokenType::ARITHMETIC, "+", 5));
+        tokens.push((TokenType::IDENT, "j", 5));
+        tokens.push((TokenType::SEMICOLON, ";", 5));
 
         for (key, value, line) in tokens.into_iter() {
             let tok: Token = lexer.next_token();
@@ -162,78 +161,80 @@ mod lexer_tests {
                 print(true);
             end
         "#;
-        let mut tokens: Vec<(&str, &str)> = Vec::new();
+        let mut tokens: Vec<(TokenType, &str)> = Vec::new();
 
-        tokens.push((Reserved::KEYWORD(Keyword::IF).as_str(), "if"));
-        tokens.push((Reserved::KEYWORD(Keyword::TRUE).as_str(), "true"));
-        tokens.push((Reserved::LBRACE.as_str(), "{"));
-        tokens.push((Reserved::IDENT.as_str(), "print"));
-        tokens.push((Reserved::LPAREN.as_str(), "("));
-        tokens.push((Reserved::KEYWORD(Keyword::TRUE).as_str(), "true"));
-        tokens.push((Reserved::RPAREN.as_str(), ")"));
-        tokens.push((Reserved::SEMICOLON.as_str(), ";"));
-        tokens.push((Reserved::RBRACE.as_str(), "}"));
-        tokens.push((Reserved::KEYWORD(Keyword::ELSE).as_str(), "else"));
-        tokens.push((Reserved::LBRACE.as_str(), "{"));
-        tokens.push((Reserved::KEYWORD(Keyword::RETURN).as_str(), "return"));
-        tokens.push((Reserved::KEYWORD(Keyword::FALSE).as_str(), "false"));
-        tokens.push((Reserved::SEMICOLON.as_str(), ";"));
-        tokens.push((Reserved::RBRACE.as_str(), "}"));
+        tokens.push((TokenType::KEYWORD(Keyword::IF), "if"));
+        tokens.push((TokenType::KEYWORD(Keyword::TRUE), "true"));
+        tokens.push((TokenType::LBRACE, "{"));
+        tokens.push((TokenType::IDENT, "print"));
+        tokens.push((TokenType::LPAREN, "("));
+        tokens.push((TokenType::KEYWORD(Keyword::TRUE), "true"));
+        tokens.push((TokenType::RPAREN, ")"));
+        tokens.push((TokenType::SEMICOLON, ";"));
+        tokens.push((TokenType::RBRACE, "}"));
+        tokens.push((TokenType::KEYWORD(Keyword::ELSE), "else"));
+        tokens.push((TokenType::LBRACE, "{"));
+        tokens.push((TokenType::KEYWORD(Keyword::RETURN), "return"));
+        tokens.push((TokenType::KEYWORD(Keyword::FALSE), "false"));
+        tokens.push((TokenType::SEMICOLON, ";"));
+        tokens.push((TokenType::RBRACE, "}"));
 
-        tokens.push((Reserved::KEYWORD(Keyword::IF).as_str(), "if"));
-        tokens.push((Reserved::IDENT.as_str(), "a"));
-        tokens.push((Reserved::GREATER.as_str(), ">"));
-        tokens.push((Reserved::IDENT.as_str(), "b"));
-        tokens.push((Reserved::LBRACE.as_str(), "{"));
-        tokens.push((Reserved::IDENT.as_str(), "print"));
-        tokens.push((Reserved::LPAREN.as_str(), "("));
-        tokens.push((Reserved::DQUOTE.as_str(), "\""));
-        tokens.push((Reserved::IDENT.as_str(), "hot"));
-        tokens.push((Reserved::DQUOTE.as_str(), "\""));
-        tokens.push((Reserved::RPAREN.as_str(), ")"));
-        tokens.push((Reserved::SEMICOLON.as_str(), ";"));
-        tokens.push((Reserved::RBRACE.as_str(), "}"));
-        tokens.push((Reserved::KEYWORD(Keyword::ELSE).as_str(), "else"));
-        tokens.push((Reserved::LBRACE.as_str(), "{"));
-        tokens.push((Reserved::IDENT.as_str(), "print"));
-        tokens.push((Reserved::LPAREN.as_str(), "("));
-        tokens.push((Reserved::DQUOTE.as_str(), "\""));
-        tokens.push((Reserved::IDENT.as_str(), "cold"));
-        tokens.push((Reserved::DQUOTE.as_str(), "\""));
-        tokens.push((Reserved::RPAREN.as_str(), ")"));
-        tokens.push((Reserved::SEMICOLON.as_str(), ";"));
-        tokens.push((Reserved::RBRACE.as_str(), "}"));
+        tokens.push((TokenType::KEYWORD(Keyword::IF), "if"));
+        tokens.push((TokenType::IDENT, "a"));
+        tokens.push((TokenType::GREATER, ">"));
+        tokens.push((TokenType::IDENT, "b"));
+        tokens.push((TokenType::LBRACE, "{"));
+        tokens.push((TokenType::IDENT, "print"));
+        tokens.push((TokenType::LPAREN, "("));
+        tokens.push((TokenType::DQUOTE, "\""));
+        tokens.push((TokenType::IDENT, "hot"));
+        tokens.push((TokenType::DQUOTE, "\""));
+        tokens.push((TokenType::RPAREN, ")"));
+        tokens.push((TokenType::SEMICOLON, ";"));
+        tokens.push((TokenType::RBRACE, "}"));
+        tokens.push((TokenType::KEYWORD(Keyword::ELSE), "else"));
+        tokens.push((TokenType::LBRACE, "{"));
+        tokens.push((TokenType::IDENT, "print"));
+        tokens.push((TokenType::LPAREN, "("));
+        tokens.push((TokenType::DQUOTE, "\""));
+        tokens.push((TokenType::IDENT, "cold"));
+        tokens.push((TokenType::DQUOTE, "\""));
+        tokens.push((TokenType::RPAREN, ")"));
+        tokens.push((TokenType::SEMICOLON, ";"));
+        tokens.push((TokenType::RBRACE, "}"));
 
-        tokens.push((Reserved::KEYWORD(Keyword::IF).as_str(), "if"));
-        tokens.push((Reserved::KEYWORD(Keyword::TRUE).as_str(), "true"));
-        tokens.push((Reserved::KEYWORD(Keyword::DO).as_str(), "do"));
-        tokens.push((Reserved::COLON.as_str(), ":"));
-        tokens.push((Reserved::IDENT.as_str(), "print"));
-        tokens.push((Reserved::LPAREN.as_str(), "("));
-        tokens.push((Reserved::KEYWORD(Keyword::TRUE).as_str(), "true"));
-        tokens.push((Reserved::RPAREN.as_str(), ")"));
-        tokens.push((Reserved::COMMA.as_str(), ","));
-        tokens.push((Reserved::KEYWORD(Keyword::ELSE).as_str(), "else"));
-        tokens.push((Reserved::COLON.as_str(), ":"));
-        tokens.push((Reserved::IDENT.as_str(), "print"));
-        tokens.push((Reserved::LPAREN.as_str(), "("));
-        tokens.push((Reserved::KEYWORD(Keyword::FALSE).as_str(), "false"));
-        tokens.push((Reserved::RPAREN.as_str(), ")"));
+        tokens.push((TokenType::KEYWORD(Keyword::IF), "if"));
+        tokens.push((TokenType::KEYWORD(Keyword::TRUE), "true"));
+        tokens.push((TokenType::KEYWORD(Keyword::DO), "do"));
+        tokens.push((TokenType::COLON, ":"));
+        tokens.push((TokenType::IDENT, "print"));
+        tokens.push((TokenType::LPAREN, "("));
+        tokens.push((TokenType::KEYWORD(Keyword::TRUE), "true"));
+        tokens.push((TokenType::RPAREN, ")"));
+        tokens.push((TokenType::COMMA, ","));
+        tokens.push((TokenType::KEYWORD(Keyword::ELSE), "else"));
+        tokens.push((TokenType::COLON, ":"));
+        tokens.push((TokenType::IDENT, "print"));
+        tokens.push((TokenType::LPAREN, "("));
+        tokens.push((TokenType::KEYWORD(Keyword::FALSE), "false"));
+        tokens.push((TokenType::RPAREN, ")"));
 
-        tokens.push((Reserved::KEYWORD(Keyword::IF).as_str(), "if"));
-        tokens.push((Reserved::KEYWORD(Keyword::TRUE).as_str(), "true"));
-        tokens.push((Reserved::KEYWORD(Keyword::DO).as_str(), "do"));
-        tokens.push((Reserved::IDENT.as_str(), "print"));
-        tokens.push((Reserved::LPAREN.as_str(), "("));
-        tokens.push((Reserved::KEYWORD(Keyword::TRUE).as_str(), "true"));
-        tokens.push((Reserved::RPAREN.as_str(), ")"));
-        tokens.push((Reserved::SEMICOLON.as_str(), ";"));
-        tokens.push((Reserved::KEYWORD(Keyword::END).as_str(), "end"));
+        tokens.push((TokenType::KEYWORD(Keyword::IF), "if"));
+        tokens.push((TokenType::KEYWORD(Keyword::TRUE), "true"));
+        tokens.push((TokenType::KEYWORD(Keyword::DO), "do"));
+        tokens.push((TokenType::IDENT, "print"));
+        tokens.push((TokenType::LPAREN, "("));
+        tokens.push((TokenType::KEYWORD(Keyword::TRUE), "true"));
+        tokens.push((TokenType::RPAREN, ")"));
+        tokens.push((TokenType::SEMICOLON, ";"));
+        tokens.push((TokenType::KEYWORD(Keyword::END), "end"));
 
         let mut lexer = Lexer::new(code.chars().collect());
 
         for (key, value) in tokens {
             let token = lexer.next_token();
+
+            // println!("type: {:#?}, value: {:#?}", token.t, token.value);
 
             assert_eq!(token.t, key);
             assert_eq!(token.value, value);
@@ -245,12 +246,12 @@ mod lexer_tests {
         let code: &'static str = r#"
             ++--**//&&||..;
         "#;
-        let mut tokens: Vec<(&str, &str)> = Vec::new();
+        let mut tokens: Vec<(TokenType, &str)> = Vec::new();
 
-        tokens.push((Reserved::ARITHMETIC.as_str(), "++"));
-        tokens.push((Reserved::ARITHMETIC.as_str(), "--"));
-        tokens.push((Reserved::ARITHMETIC.as_str(), "**"));
-        tokens.push((Reserved::ARITHMETIC.as_str(), "//"));
+        tokens.push((TokenType::ARITHMETIC, "++"));
+        tokens.push((TokenType::ARITHMETIC, "--"));
+        tokens.push((TokenType::ARITHMETIC, "**"));
+        tokens.push((TokenType::ARITHMETIC, "//"));
 
         let mut lexer = Lexer::new(CODE.chars().collect());
     }
