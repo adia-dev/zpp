@@ -1,5 +1,8 @@
 use crate::{
-    enums::{arithmetic::Arithmetic, cmp::Cmp, keyword::Keyword, token_type::TokenType},
+    enums::{
+        arithmetic::Arithmetic, bitop::Bitop, cmp::Cmp, keyword::Keyword, logicop::LogicOp,
+        token_type::TokenType,
+    },
     token::Token,
 };
 
@@ -41,7 +44,15 @@ impl Lexer {
         };
 
         match self.c {
-            '=' => new_token.t = TokenType::ASSIGN,
+            '=' => {
+                if self.peek_char() == '=' {
+                    self.read_char(); // Consume '='
+                    new_token.value = "==".to_owned();
+                    new_token.t = TokenType::CMP(Cmp::EQUAL);
+                } else {
+                    new_token.t = TokenType::ASSIGN;
+                }
+            }
             ';' => new_token.t = TokenType::SEMICOLON,
             ':' => new_token.t = TokenType::COLON,
             '(' => new_token.t = TokenType::LPAREN,
@@ -49,19 +60,61 @@ impl Lexer {
             ',' => new_token.t = TokenType::COMMA,
             '+' | '-' | '*' | '/' | '%' => {
                 if let Some(arithmetic) = Arithmetic::from_str(self.c.to_string().as_str()) {
-                    new_token.t = TokenType::ARITHMETIC(arithmetic);
+                    if self.peek_char() == self.c {
+                        let double = format!("{}{}", self.c, self.c);
+                        if let Some(repeated_arithmetic) = Arithmetic::from_str(double.as_str()) {
+                            self.read_char();
+                            new_token.value = double;
+                            new_token.t = TokenType::ARITHMETIC(repeated_arithmetic);
+                        }
+                    } else {
+                        new_token.t = TokenType::ARITHMETIC(arithmetic);
+                    }
                 } else {
                     new_token.t = TokenType::ILLEGAL;
                 }
             }
-            '&' | '|' | '~' | '^' => new_token.t = TokenType::BITOP,
+            '&' | '|' | '~' | '^' => {
+                if let Some(bitop) = Bitop::from_str(self.c.to_string().as_str()) {
+                    if self.peek_char() == self.c {
+                        let double = format!("{}{}", self.c, self.c);
+                        if let Some(logicop) = LogicOp::from_str(double.as_str()) {
+                            self.read_char();
+                            new_token.value = double;
+                            new_token.t = TokenType::LOGICOP(logicop);
+                        }
+                    } else {
+                        new_token.t = TokenType::BITOP(bitop);
+                    }
+                } else {
+                    new_token.t = TokenType::ILLEGAL;
+                }
+            }
+            '!' => {
+                if self.peek_char() == '=' {
+                    self.read_char(); // Consume '='
+                    new_token.t = TokenType::CMP(Cmp::NEQUAL);
+                } else {
+                    new_token.t = TokenType::LOGICOP(LogicOp::NOT);
+                }
+            }
             '{' => new_token.t = TokenType::LBRACE,
             '}' => new_token.t = TokenType::RBRACE,
             '<' => {
-                new_token.t = TokenType::CMP(Cmp::LT);
+                if self.peek_char() == '=' {
+                    self.read_char(); // Consume '='
+                    new_token.t = TokenType::CMP(Cmp::LE);
+                } else {
+                    new_token.t = TokenType::CMP(Cmp::LT);
+                }
             }
             '>' => {
-                new_token.t = TokenType::CMP(Cmp::GT);
+                if self.peek_char() == '=' {
+                    self.read_char(); // Consume '='
+                    new_token.t = TokenType::CMP(Cmp::GE);
+                } else {
+                    new_token.t = TokenType::CMP(Cmp::GT);
+                }
             }
             '"' => new_token.t = TokenType::DQUOTE,
             '\'' => new_token.t = TokenType::QUOTE,
@@ -108,6 +161,14 @@ impl Lexer {
         self.position = self.next_position;
         self.next_position += 1;
         self
+    }
+
+    pub fn peek_char(&mut self) -> char {
+        if self.next_position >= self.input.len() {
+            '\0'
+        } else {
+            self.input[self.next_position]
+        }
     }
 
     fn maybe_read_identifier(&mut self) -> String {

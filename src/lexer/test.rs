@@ -4,7 +4,7 @@ mod lexer_tests {
     use std::assert_eq;
 
     use crate::{
-        enums::{arithmetic::Arithmetic, cmp::Cmp, keyword::Keyword, token_type::TokenType},
+        enums::{arithmetic::Arithmetic, cmp::Cmp, keyword::Keyword, token_type::TokenType, logicop::LogicOp},
         lexer::Lexer,
         token::Token,
     };
@@ -243,8 +243,8 @@ mod lexer_tests {
 
     #[test]
     fn test_peek_next_token_in_code() {
-        let _code: &'static str = r#"
-            ++--**//&&||..;
+        let code: &'static str = r#"
+            ++--**//&&||..
         "#;
         let mut tokens: Vec<(TokenType, &str)> = Vec::new();
 
@@ -253,6 +253,18 @@ mod lexer_tests {
         tokens.push((TokenType::ARITHMETIC(Arithmetic::POW), "**"));
         tokens.push((TokenType::ARITHMETIC(Arithmetic::FDIV), "//"));
 
-        let _lexer = Lexer::new(CODE.chars().collect());
+        tokens.push((TokenType::LOGICOP(LogicOp::AND), "&&"));
+        tokens.push((TokenType::LOGICOP(LogicOp::OR), "||"));
+
+        let mut lexer = Lexer::new(code.chars().collect());
+
+        for (key, value) in tokens {
+            let token = lexer.next_token();
+
+            println!("key: {:#?}, value: {:#?}", token.t, token.value);
+
+            assert_eq!(token.t, key);
+            assert_eq!(token.value, value);
+        }
     }
 }
