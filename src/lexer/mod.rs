@@ -49,7 +49,7 @@ impl Lexer {
             ')' => new_token.t = Reserved::RPAREN.to_string(),
             ',' => new_token.t = Reserved::COMMA.to_string(),
             '+' | '-' | '*' | '/' | '%' => new_token.t = Reserved::ARITHMETIC.to_string(),
-            '&' | '|' | '~' | '^' => new_token.t = Reserved::BIT_OPERATOR.to_string(),
+            '&' | '|' | '~' | '^' => new_token.t = Reserved::BITOP.to_string(),
             '{' => new_token.t = Reserved::LBRACE.to_string(),
             '}' => new_token.t = Reserved::RBRACE.to_string(),
             '<' => new_token.t = Reserved::LESS.to_string(),

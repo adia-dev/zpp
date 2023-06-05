@@ -26,7 +26,7 @@ pub enum Reserved {
     LESS,             // Represents the assignment operator (<)
     GREATER,          // Represents the assignment operator (>)
     ARITHMETIC,       // Represents arithmetic operators (+, -, *, /, %)
-    BIT_OPERATOR,     // Represents bitwise operators (&, |, ~, ^)
+    BITOP,     // Represents bitwise operators (&, |, ~, ^)
     COMMA,            // Represents a comma (,)
     COLON,            // Represents a colon (:)
     SEMICOLON,        // Represents a semicolon (;)
@@ -52,7 +52,7 @@ impl Reserved {
             Reserved::LESS => "LESS",
             Reserved::GREATER => "LESS",
             Reserved::ARITHMETIC => "ARITHMETIC",
-            Reserved::BIT_OPERATOR => "BIT_OPERATOR",
+            Reserved::BITOP => "BITOP",
             Reserved::COMMA => "COMMA",
             Reserved::COLON => "COLON",
             Reserved::SEMICOLON => "SEMICOLON",
@@ -131,7 +131,7 @@ mod tests {
         assert_eq!(Reserved::INT.as_str(), "INT");
         assert_eq!(Reserved::ASSIGN.as_str(), "ASSIGN");
         assert_eq!(Reserved::ARITHMETIC.as_str(), "ARITHMETIC");
-        assert_eq!(Reserved::BIT_OPERATOR.as_str(), "BIT_OPERATOR");
+        assert_eq!(Reserved::BITOP.as_str(), "BITOP");
         assert_eq!(Reserved::COMMA.as_str(), "COMMA");
         assert_eq!(Reserved::SEMICOLON.as_str(), "SEMICOLON");
         assert_eq!(Reserved::LPAREN.as_str(), "LPAREN");
@@ -149,7 +149,7 @@ mod tests {
         assert_eq!(Reserved::INT.to_string(), "INT");
         assert_eq!(Reserved::ASSIGN.to_string(), "ASSIGN");
         assert_eq!(Reserved::ARITHMETIC.to_string(), "ARITHMETIC");
-        assert_eq!(Reserved::BIT_OPERATOR.to_string(), "BIT_OPERATOR");
+        assert_eq!(Reserved::BITOP.to_string(), "BITOP");
         assert_eq!(Reserved::COMMA.to_string(), "COMMA");
         assert_eq!(Reserved::SEMICOLON.to_string(), "SEMICOLON");
         assert_eq!(Reserved::LPAREN.to_string(), "LPAREN");
