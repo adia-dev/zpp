@@ -4,7 +4,7 @@ mod lexer_tests {
     use std::assert_eq;
 
     use crate::{
-        enums::{keyword::Keyword, token_type::TokenType},
+        enums::{keyword::Keyword, token_type::TokenType, arithmetic::Arithmetic},
         lexer::Lexer,
         token::Token,
     };
@@ -23,7 +23,7 @@ mod lexer_tests {
     fn test_next_token_in_sample() {
         let mut tokens: Vec<(TokenType, &str)> = Vec::new();
         tokens.push((TokenType::ASSIGN, "="));
-        tokens.push((TokenType::ARITHMETIC, "+"));
+        tokens.push((TokenType::ARITHMETIC(Arithmetic::PLUS), "+"));
         tokens.push((TokenType::LPAREN, "("));
         tokens.push((TokenType::RPAREN, ")"));
         tokens.push((TokenType::LBRACE, "{"));
@@ -68,7 +68,7 @@ mod lexer_tests {
         tokens.push((TokenType::RPAREN, ")"));
         tokens.push((TokenType::LBRACE, "{"));
         tokens.push((TokenType::IDENT, "x"));
-        tokens.push((TokenType::ARITHMETIC, "+"));
+        tokens.push((TokenType::ARITHMETIC(Arithmetic::PLUS), "+"));
         tokens.push((TokenType::IDENT, "y"));
         tokens.push((TokenType::RBRACE, "}"));
 
@@ -125,7 +125,7 @@ mod lexer_tests {
         tokens.push((TokenType::IDENT, "result", 5));
         tokens.push((TokenType::ASSIGN, "=", 5));
         tokens.push((TokenType::IDENT, "i", 5));
-        tokens.push((TokenType::ARITHMETIC, "+", 5));
+        tokens.push((TokenType::ARITHMETIC(Arithmetic::PLUS), "+", 5));
         tokens.push((TokenType::IDENT, "j", 5));
         tokens.push((TokenType::SEMICOLON, ";", 5));
 
@@ -248,10 +248,10 @@ mod lexer_tests {
         "#;
         let mut tokens: Vec<(TokenType, &str)> = Vec::new();
 
-        tokens.push((TokenType::ARITHMETIC, "++"));
-        tokens.push((TokenType::ARITHMETIC, "--"));
-        tokens.push((TokenType::ARITHMETIC, "**"));
-        tokens.push((TokenType::ARITHMETIC, "//"));
+        tokens.push((TokenType::ARITHMETIC(Arithmetic::INC), "++"));
+        tokens.push((TokenType::ARITHMETIC(Arithmetic::DEC), "--"));
+        tokens.push((TokenType::ARITHMETIC(Arithmetic::POW), "**"));
+        tokens.push((TokenType::ARITHMETIC(Arithmetic::FDIV), "//"));
 
         let _lexer = Lexer::new(CODE.chars().collect());
     }

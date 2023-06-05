@@ -1,5 +1,5 @@
 use crate::{
-    enums::{keyword::Keyword, token_type::TokenType},
+    enums::{arithmetic::Arithmetic, keyword::Keyword, token_type::TokenType},
     token::Token,
 };
 
@@ -47,7 +47,13 @@ impl Lexer {
             '(' => new_token.t = TokenType::LPAREN,
             ')' => new_token.t = TokenType::RPAREN,
             ',' => new_token.t = TokenType::COMMA,
-            '+' | '-' | '*' | '/' | '%' => new_token.t = TokenType::ARITHMETIC,
+            '+' | '-' | '*' | '/' | '%' => {
+                if let Some(arithmetic) = Arithmetic::from_str(self.c.to_string().as_str()) {
+                    new_token.t = TokenType::ARITHMETIC(arithmetic);
+                } else{
+                    new_token.t = TokenType::ILLEGAL;
+                }
+            }
             '&' | '|' | '~' | '^' => new_token.t = TokenType::BITOP,
             '{' => new_token.t = TokenType::LBRACE,
             '}' => new_token.t = TokenType::RBRACE,
@@ -59,9 +65,8 @@ impl Lexer {
             '\0' => new_token.t = TokenType::EOF,
             'a'..='z' | 'A'..='Z' | '_' => {
                 let identifier = self.maybe_read_identifier();
-                let keyword = TokenType::dispatch_keyword(&identifier);
 
-                if keyword != Keyword::UNDEFINED {
+                if let Some(keyword) = Keyword::from_str(&identifier) {
                     new_token.t = TokenType::KEYWORD(keyword);
                 } else {
                     new_token.t = TokenType::IDENT;
