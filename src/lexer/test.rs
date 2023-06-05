@@ -243,7 +243,7 @@ mod lexer_tests {
 
     #[test]
     fn test_peek_next_token_in_code() {
-        let code: &'static str = r#"
+        let _code: &'static str = r#"
             ++--**//&&||..;
         "#;
         let mut tokens: Vec<(TokenType, &str)> = Vec::new();
@@ -253,6 +253,6 @@ mod lexer_tests {
         tokens.push((TokenType::ARITHMETIC, "**"));
         tokens.push((TokenType::ARITHMETIC, "//"));
 
-        let mut lexer = Lexer::new(CODE.chars().collect());
+        let _lexer = Lexer::new(CODE.chars().collect());
     }
 }
