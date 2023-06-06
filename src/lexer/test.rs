@@ -244,7 +244,7 @@ mod lexer_tests {
     #[test]
     fn test_peek_next_token_in_code() {
         let code: &'static str = r#"
-            ++--**//&&||..
+            ++--**//&&||....=::
         "#;
         let mut tokens: Vec<(TokenType, &str)> = Vec::new();
 
@@ -255,6 +255,10 @@ mod lexer_tests {
 
         tokens.push((TokenType::LOGICOP(LogicOp::AND), "&&"));
         tokens.push((TokenType::LOGICOP(LogicOp::OR), "||"));
+
+        tokens.push((TokenType::RANGE, ".."));
+        tokens.push((TokenType::IRANGE, "..="));
+        tokens.push((TokenType::SCOPE, "::"));
 
         let mut lexer = Lexer::new(code.chars().collect());
 

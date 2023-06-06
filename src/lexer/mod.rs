@@ -45,7 +45,7 @@ impl Lexer {
 
         match self.c {
             '=' => {
-                if self.peek_char() == '=' {
+                if self.peek_next_char() == '=' {
                     self.read_char(); // Consume '='
                     new_token.value = "==".to_owned();
                     new_token.t = TokenType::CMP(Cmp::EQUAL);
@@ -54,13 +54,38 @@ impl Lexer {
                 }
             }
             ';' => new_token.t = TokenType::SEMICOLON,
-            ':' => new_token.t = TokenType::COLON,
+            ':' => {
+                if self.peek_next_char() == ':' {
+                    self.read_char();
+                    new_token.value.push(':');
+                    new_token.t = TokenType::SCOPE;
+                } else {
+                    new_token.t = TokenType::COLON;
+                }
+            }
             '(' => new_token.t = TokenType::LPAREN,
             ')' => new_token.t = TokenType::RPAREN,
+            '.' => {
+                if self.peek_next_char() == '.' {
+                    self.read_char();
+
+                    new_token.value = "..".to_owned();
+                    if self.peek_next_char() == '=' {
+                        self.read_char();
+
+                        new_token.value.push('=');
+                        new_token.t = TokenType::IRANGE;
+                    } else {
+                        new_token.t = TokenType::RANGE;
+                    }
+                } else {
+                    new_token.t = TokenType::DOT;
+                }
+            }
             ',' => new_token.t = TokenType::COMMA,
             '+' | '-' | '*' | '/' | '%' => {
                 if let Some(arithmetic) = Arithmetic::from_str(self.c.to_string().as_str()) {
-                    if self.peek_char() == self.c {
+                    if self.peek_next_char() == self.c {
                         let double = format!("{}{}", self.c, self.c);
                         if let Some(repeated_arithmetic) = Arithmetic::from_str(double.as_str()) {
                             self.read_char();
@@ -76,7 +101,7 @@ impl Lexer {
             }
             '&' | '|' | '~' | '^' => {
                 if let Some(bitop) = Bitop::from_str(self.c.to_string().as_str()) {
-                    if self.peek_char() == self.c {
+                    if self.peek_next_char() == self.c {
                         let double = format!("{}{}", self.c, self.c);
                         if let Some(logicop) = LogicOp::from_str(double.as_str()) {
                             self.read_char();
@@ -91,7 +116,7 @@ impl Lexer {
                 }
             }
             '!' => {
-                if self.peek_char() == '=' {
+                if self.peek_next_char() == '=' {
                     self.read_char(); // Consume '='
                     new_token.t = TokenType::CMP(Cmp::NEQUAL);
                 } else {
@@ -101,7 +126,7 @@ impl Lexer {
             '{' => new_token.t = TokenType::LBRACE,
             '}' => new_token.t = TokenType::RBRACE,
             '<' => {
-                if self.peek_char() == '=' {
+                if self.peek_next_char() == '=' {
                     self.read_char(); // Consume '='
                     new_token.t = TokenType::CMP(Cmp::LE);
                 } else {
@@ -109,7 +134,7 @@ impl Lexer {
                 }
             }
             '>' => {
-                if self.peek_char() == '=' {
+                if self.peek_next_char() == '=' {
                     self.read_char(); // Consume '='
                     new_token.t = TokenType::CMP(Cmp::GE);
                 } else {
@@ -163,7 +188,7 @@ impl Lexer {
         self
     }
 
-    pub fn peek_char(&mut self) -> char {
+    pub fn peek_next_char(&mut self) -> char {
         if self.next_position >= self.input.len() {
             '\0'
         } else {
