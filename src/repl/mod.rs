@@ -66,7 +66,7 @@ impl REPL {
         let tokens: Vec<Token> = self.tokens.clone().into_iter().collect();
 
         for t in tokens {
-            println!("{:#?}", t);
+            println!("Type: {:?}, Literal: {}", t.t, t.value);
         }
     }
 }
