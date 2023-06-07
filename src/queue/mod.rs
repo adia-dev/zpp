@@ -4,17 +4,17 @@ pub struct Queue<T> {
 }
 
 impl<T> Queue<T> {
-    fn new() -> Self {
+    pub fn new() -> Self {
         Queue {
             collection: Vec::new(),
         }
     }
 
-    fn enqueue(&mut self, item: T) {
+    pub fn enqueue(&mut self, item: T) {
         self.collection.push(item)
     }
 
-    fn dequeue(&mut self) -> Option<T> {
+    pub fn dequeue(&mut self) -> Option<T> {
         if self.is_empty() {
             None
         } else {
@@ -22,26 +22,42 @@ impl<T> Queue<T> {
         }
     }
 
-    fn len(&self) -> usize {
+    pub fn clear(&mut self) {
+        self.collection.clear()
+    }
+
+    pub fn peek(&self) -> Option<&T> {
+        self.collection.first()
+    }
+
+    pub fn len(&self) -> usize {
         self.collection.len()
     }
 
-    fn is_empty(&mut self) -> bool {
+    pub fn is_empty(&self) -> bool {
         self.collection.is_empty()
-    }
-
-    fn peek(&self) -> Option<&T> {
-        self.collection.first()
     }
 }
 
-impl<T> IntoIterator for Queue<T> {
+// impl<T> IntoIterator for Queue<T> {
+//     type Item = T;
+//
+//     type IntoIter = std::vec::IntoIter<Self::Item>;
+//
+//     fn into_iter(self) -> Self::IntoIter {
+//         self.collection.into_iter()
+//     }
+// }
+
+impl<T> Iterator for Queue<T> {
     type Item = T;
 
-    type IntoIter = std::vec::IntoIter<Self::Item>;
-
-    fn into_iter(self) -> Self::IntoIter {
-        self.collection.into_iter()
+    fn next(&mut self) -> Option<Self::Item> {
+        if let Some(_item) = self.peek() {
+            self.dequeue()
+        } else {
+            None
+        }
     }
 }
 
