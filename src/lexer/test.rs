@@ -4,7 +4,10 @@ mod lexer_tests {
     use std::assert_eq;
 
     use crate::{
-        enums::{arithmetic::Arithmetic, cmp::Cmp, keyword::Keyword, token_type::TokenType, logicop::LogicOp},
+        enums::{
+            arithmetic::Arithmetic, cmp::Cmp, keyword::Keyword, logicop::LogicOp,
+            token_type::TokenType,
+        },
         lexer::Lexer,
         token::Token,
     };
@@ -265,7 +268,7 @@ mod lexer_tests {
         for (key, value) in tokens {
             let token = lexer.next_token();
 
-            println!("key: {:#?}, value: {:#?}", token.t, token.value);
+            // println!("key: {:#?}, value: {:#?}", token.t, token.value);
 
             assert_eq!(token.t, key);
             assert_eq!(token.value, value);

@@ -1,8 +1,8 @@
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum LogicOp {
-    AND,    // Logical AND operator (&&)
-    OR,     // Logical OR operator (||)
-    NOT,    // Logical NOT operator (!)
+    AND, // Logical AND operator (&&)
+    OR,  // Logical OR operator (||)
+    NOT, // Logical NOT operator (!)
 }
 
 impl LogicOp {

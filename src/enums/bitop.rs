@@ -1,11 +1,11 @@
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Bitop {
-    AND,    // Bitwise AND operator (&)
-    OR,     // Bitwise OR operator (|)
-    XOR,    // Bitwise XOR operator (^)
-    NOT,    // Bitwise NOT operator (~)
-    SHL,    // Left shift operator (<<)
-    SHR,    // Right shift operator (>>)
+    AND, // Bitwise AND operator (&)
+    OR,  // Bitwise OR operator (|)
+    XOR, // Bitwise XOR operator (^)
+    NOT, // Bitwise NOT operator (~)
+    SHL, // Left shift operator (<<)
+    SHR, // Right shift operator (>>)
 }
 
 impl Bitop {

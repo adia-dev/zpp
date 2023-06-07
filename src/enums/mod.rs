@@ -1,6 +1,6 @@
 pub mod arithmetic;
+pub mod bitop;
 pub mod cmp;
 pub mod keyword;
-pub mod token_type;
-pub mod bitop;
 pub mod logicop;
+pub mod token_type;
