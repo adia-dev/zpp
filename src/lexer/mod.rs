@@ -199,7 +199,7 @@ impl Lexer {
     fn maybe_read_identifier(&mut self) -> String {
         let position = self.position;
 
-        while self.c.is_alphanumeric() {
+        while self.c.is_alphanumeric() || self.c == '_' {
             self.read_char();
         }
 

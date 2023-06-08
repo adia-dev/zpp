@@ -1,6 +1,6 @@
 use super::{arithmetic::Arithmetic, bitop::Bitop, cmp::Cmp, keyword::Keyword, logicop::LogicOp};
 
-#[derive(Default, Debug, Clone, PartialEq, Eq)]
+#[derive(Default, Copy, Debug, Clone, PartialEq, Eq)]
 pub enum TokenType {
     #[default]
     ILLEGAL, // Represents an illegal or invalid character

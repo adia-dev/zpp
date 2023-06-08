@@ -1,8 +1,9 @@
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub enum Keyword {
     LET,       // Represents the "let" keyword
     CONST,     // Represents the "const" keyword
     VAR,       // Represents the "var" keyword
+    AUTO,      // Represents the "auto" keyword
     RETURN,    // Represents the "return" keyword
     FOR,       // Represents the "for" keyword
     WHILE,     // Represents the "while" keyword
@@ -23,6 +24,7 @@ impl Keyword {
             Keyword::LET => "LET",
             Keyword::CONST => "CONST",
             Keyword::VAR => "VAR",
+            Keyword::AUTO => "AUTO",
             Keyword::RETURN => "RETURN",
             Keyword::FOR => "FOR",
             Keyword::WHILE => "WHILE",
@@ -48,6 +50,7 @@ impl Keyword {
             "let" => Some(Keyword::LET),
             "const" => Some(Keyword::CONST),
             "var" => Some(Keyword::VAR),
+            "auto" => Some(Keyword::AUTO),
             "return" => Some(Keyword::RETURN),
             "for" => Some(Keyword::FOR),
             "while" => Some(Keyword::WHILE),
@@ -72,6 +75,7 @@ mod tests {
         assert_eq!(Keyword::LET.as_str(), "LET");
         assert_eq!(Keyword::CONST.as_str(), "CONST");
         assert_eq!(Keyword::VAR.as_str(), "VAR");
+        assert_eq!(Keyword::AUTO.as_str(), "AUTO");
         assert_eq!(Keyword::RETURN.as_str(), "RETURN");
         assert_eq!(Keyword::FOR.as_str(), "FOR");
         assert_eq!(Keyword::WHILE.as_str(), "WHILE");
@@ -84,6 +88,7 @@ mod tests {
         assert_eq!(Keyword::LET.to_string(), "LET");
         assert_eq!(Keyword::CONST.to_string(), "CONST");
         assert_eq!(Keyword::VAR.to_string(), "VAR");
+        assert_eq!(Keyword::AUTO.to_string(), "AUTO");
         assert_eq!(Keyword::RETURN.to_string(), "RETURN");
         assert_eq!(Keyword::FOR.to_string(), "FOR");
         assert_eq!(Keyword::WHILE.to_string(), "WHILE");
@@ -96,6 +101,7 @@ mod tests {
         assert_eq!(Keyword::from_str("let"), Some(Keyword::LET));
         assert_eq!(Keyword::from_str("const"), Some(Keyword::CONST));
         assert_eq!(Keyword::from_str("var"), Some(Keyword::VAR));
+        assert_eq!(Keyword::from_str("auto"), Some(Keyword::AUTO));
         assert_eq!(Keyword::from_str("return"), Some(Keyword::RETURN));
         assert_eq!(Keyword::from_str("for"), Some(Keyword::FOR));
         assert_eq!(Keyword::from_str("while"), Some(Keyword::WHILE));

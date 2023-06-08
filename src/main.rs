@@ -4,12 +4,15 @@
 use clap::Parser;
 use repl::REPL;
 
-mod queue;
+mod ast;
+mod cli;
 mod enums;
 mod lexer;
-mod token;
-mod cli;
+mod parser;
+mod queue;
 mod repl;
+mod token;
+mod traits;
 
 fn main() {
     let _args = cli::Cli::parse();

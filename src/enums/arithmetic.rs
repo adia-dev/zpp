@@ -1,4 +1,4 @@
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub enum Arithmetic {
     PLUS,  // Addition operator (+)
     MINUS, // Subtraction operator (-)

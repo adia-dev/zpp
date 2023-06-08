@@ -1,4 +1,4 @@
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub enum LogicOp {
     AND, // Logical AND operator (&&)
     OR,  // Logical OR operator (||)
