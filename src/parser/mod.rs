@@ -11,6 +11,8 @@ use crate::{
     traits::Statement,
 };
 
+type Result<T> = std::result::Result<T, Box<dyn std::error::Error>>;
+
 #[derive(Debug)]
 pub struct Parser<'a> {
     lexer: &'a mut Lexer,
@@ -53,7 +55,7 @@ impl<'a> Parser<'a> {
         }
     }
 
-    pub fn parse(&mut self) -> Program {
+    pub fn parse(&mut self) -> Result<Program> {
         let mut new_program = Program::new();
 
         loop {
@@ -62,21 +64,19 @@ impl<'a> Parser<'a> {
                     break;
                 }
 
-                let parsed_stmt = self.parse_statement();
-                if let Some(stmt) = parsed_stmt {
-                    new_program.statements.push(stmt);
-                }
+                let parsed_stmt = self.parse_statement()?;
+                new_program.statements.push(parsed_stmt);
 
                 self.next_token();
             } else {
-                break;
+                return Err("Error parsing an apparant `None` token in the program".into());
             }
         }
 
-        new_program
+        Ok(new_program)
     }
 
-    pub fn parse_statement(&mut self) -> Option<Box<dyn Statement>> {
+    pub fn parse_statement(&mut self) -> Result<Box<dyn Statement>> {
         if let Some(token) = &self.current_token {
             match token.t {
                 TokenType::KEYWORD(kw) => match kw {
@@ -95,60 +95,67 @@ impl<'a> Parser<'a> {
                     Keyword::FALSE => todo!(),
                     Keyword::UNDEFINED => todo!(),
                 },
-                _ => None,
+                _ => Err(format!("Unexpected keyword token encountered: {:#?}", token).into()),
             }
+        } else {
+            Err("Expected a TOKEN, None was given.".into())
+        }
+    }
+
+    fn parse_identifier(&mut self) -> Result<Identifier> {
+        if !self.cmp_next_token_type(TokenType::IDENT) {
+            return Err("Could not find a valid IDENTIFIER".into());
+        }
+
+        let identifier_token = self.next_token.clone().unwrap();
+
+        Ok(Identifier::new(
+            identifier_token.clone(),
+            identifier_token.t.to_string(),
+        ))
+    }
+
+    fn parse_type_specifier(&mut self) -> Option<Token> {
+        if self.cmp_next_token_type(TokenType::COLON) {
+            self.next_token();
+            if !self.cmp_next_token_type(TokenType::IDENT) {
+                return None;
+            }
+
+            self.next_token.clone()
         } else {
             None
         }
     }
 
-    fn parse_declare_statement(&mut self) -> Option<Box<dyn Statement>> {
+    fn parse_declare_statement(&mut self) -> Result<Box<dyn Statement>> {
         // (LET | CONST | VAR | AUTO) INDENT ASSIGN EXPRESSION SEMICOLON
         // (LET | CONST | VAR | AUTO) INDENT COLON INDENT ASSIGN EXPRESSION SEMICOLOR
         // (LET | CONST | VAR | AUTO) INDENT SEMICOLON
         // (LET | CONST | VAR | AUTO) INDENT COLON INDENT SEMICOLON
 
-        if !self.cmp_next_token_type(TokenType::IDENT) {
-            println!(
-                "Expected an Identifier Token., UNEXPECTED: {:#?}",
-                self.next_token
-            );
-            return None;
-        }
-
-        let identifier_token = self.next_token.clone().unwrap();
-
-        let identifier = Identifier::new(identifier_token.clone(), identifier_token.t.to_string());
+        let identifier = self.parse_identifier()?;
         let mut stmt =
             DeclareStatement::new(self.current_token.clone().unwrap(), None, identifier, None);
 
         self.next_token();
 
-        // maybe type identifier
-        if self.cmp_next_token_type(TokenType::COLON) {
-            self.next_token();
-            if !self.cmp_next_token_type(TokenType::IDENT) {
-                println!(
-                    "Expected an Identifier Token., UNEXPECTED: {:#?}",
-                    self.next_token
-                );
-                return None;
-            }
-
-            stmt.type_specifier = self.next_token.clone();
+        if let Some(type_specifier_token) = self.parse_type_specifier() {
+            stmt.type_specifier = Some(type_specifier_token);
             self.next_token();
         }
 
         if self.cmp_next_token_type(TokenType::SEMICOLON) {
-            return Some(Box::new(stmt));
+            self.next_token();
+            return Ok(Box::new(stmt));
         }
 
         if !self.cmp_next_token_type(TokenType::ASSIGN) {
-            println!(
-                "Expected an ASSIGN Token., UNEXPECTED: {:#?}",
+            return Err(format!(
+                "Expected an ASSIGN Token, UNEXPECTED: {:#?}",
                 self.next_token
-            );
-            return None;
+            )
+            .into());
         }
 
         self.next_token();
@@ -162,10 +169,11 @@ impl<'a> Parser<'a> {
                 if self.cmp_current_token_type(TokenType::EOF)
                     || self.cmp_current_token_type(TokenType::ILLEGAL)
                 {
-                    println!(
-                        "Expected a SEMICOLON Token., UNEXPECTED: {:#?}",
+                    return Err(format!(
+                        "Expected a SEMICOLON Token, UNEXPECTED: {:#?}",
                         self.current_token
-                    );
+                    )
+                    .into());
                 }
 
                 self.next_token();
@@ -174,6 +182,33 @@ impl<'a> Parser<'a> {
             }
         }
 
-        return Some(Box::new(stmt));
+        return Ok(Box::new(stmt));
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_parse_success() {
+        let code = "let x = 5;";
+        let mut lexer = Lexer::new(code.chars().collect());
+        let mut parser = Parser::new(&mut lexer);
+        let result = parser.parse();
+
+        assert!(result.is_ok());
+        let program = result.unwrap();
+        assert_eq!(program.statements.len(), 1);
+    }
+
+    #[test]
+    fn test_parse_error() {
+        let code = "let x 5;";
+        let mut lexer = Lexer::new(code.chars().collect());
+        let mut parser = Parser::new(&mut lexer);
+        let result = parser.parse();
+
+        assert!(result.is_err());
     }
 }
