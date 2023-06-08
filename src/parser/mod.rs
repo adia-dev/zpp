@@ -2,8 +2,9 @@ use std::{panic, println, unimplemented};
 
 use crate::{
     ast::{
-        expressions::identifier_expression::Identifier, program::Program,
-        statements::declare_statement::DeclareStatement,
+        expressions::identifier_expression::Identifier,
+        program::Program,
+        statements::{declare_statement::DeclareStatement, return_statement::ReturnStatement},
     },
     enums::{keyword::Keyword, token_type::TokenType},
     lexer::Lexer,
@@ -83,7 +84,7 @@ impl<'a> Parser<'a> {
                     Keyword::LET | Keyword::CONST | Keyword::VAR | Keyword::AUTO => {
                         self.parse_declare_statement()
                     }
-                    Keyword::RETURN => todo!(),
+                    Keyword::RETURN => self.parse_return_statement(),
                     Keyword::FOR => todo!(),
                     Keyword::WHILE => todo!(),
                     Keyword::FUNCTION => todo!(),
@@ -181,6 +182,34 @@ impl<'a> Parser<'a> {
                 break;
             }
         }
+
+        return Ok(Box::new(stmt));
+    }
+
+    fn parse_return_statement(&mut self) -> Result<Box<dyn Statement>> {
+        loop {
+            if let Some(_) = &self.current_token {
+                if self.cmp_current_token_type(TokenType::SEMICOLON) {
+                    break;
+                }
+
+                if self.cmp_current_token_type(TokenType::EOF)
+                    || self.cmp_current_token_type(TokenType::ILLEGAL)
+                {
+                    return Err(format!(
+                        "Expected a SEMICOLON Token, UNEXPECTED: {:#?}",
+                        self.current_token
+                    )
+                    .into());
+                }
+
+                self.next_token();
+            } else {
+                break;
+            }
+        }
+
+        let stmt = ReturnStatement::new(self.current_token.clone().unwrap(), None);
 
         return Ok(Box::new(stmt));
     }
