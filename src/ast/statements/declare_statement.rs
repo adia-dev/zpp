@@ -42,7 +42,11 @@ impl Node for DeclareStatement {
 
 impl ToString for DeclareStatement {
     fn to_string(&self) -> String {
-        let mut s = format!("{} {}", self.token.value.to_string(), self.identifier.to_string());
+        let mut s = format!(
+            "{} {}",
+            self.token.value.to_string(),
+            self.identifier.to_string()
+        );
 
         if let Some(t) = &self.type_specifier {
             s.push_str(format!(": {}", t.value.to_string()).as_str());
@@ -106,11 +110,8 @@ mod tests {
             "x".to_string(),
         );
 
-        println!("identifier: {:#?}", identifier);
-
-        let declare_statement = DeclareStatement::new(token, type_specifier, Box::new(identifier), None);
-        println!("declare_statement: {:#?}", declare_statement);
-
+        let declare_statement =
+            DeclareStatement::new(token, type_specifier, Box::new(identifier), None);
 
         assert_eq!(declare_statement.token.value, "let");
         assert_eq!(declare_statement.type_specifier.unwrap().value, "int");

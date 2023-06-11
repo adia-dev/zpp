@@ -50,8 +50,6 @@ mod tests {
         let mut parser = Parser::new(&mut lexer);
         let program = parser.parse();
 
-        println!("{:#?}", program);
-
         assert!(program.is_ok());
 
         assert_eq!(program.unwrap().statements.len(), 1);

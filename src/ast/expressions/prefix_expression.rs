@@ -3,33 +3,34 @@ use crate::{
     traits::{Expression, Node},
 };
 
-#[derive(Clone, Debug)]
-pub struct IntegerLiteral {
+#[derive(Debug)]
+pub struct PrefixExpression {
     pub token: Token,
-    pub value: i32,
+    pub operator: String,
+    pub rhs: Box<dyn Expression>,
 }
 
-impl IntegerLiteral {
-    pub fn new(token: Token, value: i32) -> Self {
-        Self { token, value }
+impl PrefixExpression {
+    pub fn new(token: Token, operator: String, rhs: Box<dyn Expression>) -> Self {
+        Self { token, operator, rhs }
     }
 }
 
-impl Node for IntegerLiteral {
+impl Node for PrefixExpression {
     fn get_token(&self) -> String {
         self.token.value.clone()
     }
 }
 
-impl ToString for IntegerLiteral {
+impl ToString for PrefixExpression {
     fn to_string(&self) -> String {
-        self.value.to_string()
+        format!("({}{})", self.operator, self.rhs.to_string())
     }
 }
 
-impl Expression for IntegerLiteral {
+impl Expression for PrefixExpression {
     fn eval(&self) -> String {
-        self.value.to_string()
+        self.operator.to_string()
     }
 }
 
@@ -40,16 +41,18 @@ mod tests {
     #[test]
     pub fn test_integer_literal_expression() {
         let code = r#"
-            5;
+            -5;
+            !5;
+            !-5;
+            -!-!-!-!-!-10000;
         "#;
 
         let mut lexer = Lexer::new(code.chars().collect());
         let mut parser = Parser::new(&mut lexer);
         let program = parser.parse();
 
-
         assert!(program.is_ok());
 
-        assert_eq!(program.unwrap().statements.len(), 1);
+        assert_eq!(program.unwrap().statements.len(), 4);
     }
 }

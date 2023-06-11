@@ -3,14 +3,17 @@ pub mod precedence;
 
 use crate::{
     ast::{
-        expressions::{identifier_expression::Identifier, integer_literal::IntegerLiteral},
+        expressions::{
+            identifier_expression::Identifier, integer_literal::IntegerLiteral,
+            prefix_expression::PrefixExpression,
+        },
         program::Program,
         statements::{
             declare_statement::DeclareStatement, expression_statement::ExpressionStatement,
             return_statement::ReturnStatement,
         },
     },
-    enums::{keyword::Keyword, token_type::TokenType},
+    enums::{arithmetic::Arithmetic, keyword::Keyword, token_type::TokenType, logicop::LogicOp},
     lexer::Lexer,
     token::Token,
     traits::{Expression, Statement},
@@ -130,6 +133,21 @@ impl<'a> Parser<'a> {
                 }
                 Err(_e) => Err("Expected an INDENTIFIER token, got: `None`.".into()),
             }
+        } else {
+            Err("Expected an INDENTIFIER token, got: `None`.".into())
+        }
+    }
+
+    fn parse_prefix_expression(&mut self) -> Result<Box<dyn Expression>> {
+        if let Some(token) = &self.current_token.clone() {
+            self.next_token();
+            let rhs = self.parse_expression(Precedence::Prefix)?;
+
+            Ok(Box::new(PrefixExpression::new(
+                token.clone(),
+                token.value.to_string(),
+                rhs,
+            )))
         } else {
             Err("Expected an INDENTIFIER token, got: `None`.".into())
         }
@@ -271,9 +289,25 @@ impl<'a> Parser<'a> {
                 TokenType::IRANGE => todo!(),
                 TokenType::SCOPE => todo!(),
                 TokenType::CMP(_) => todo!(),
-                TokenType::ARITHMETIC(_) => todo!(),
+                TokenType::ARITHMETIC(arithmetic) => match arithmetic {
+                    Arithmetic::PLUS => todo!(),
+                    Arithmetic::MINUS => return self.parse_prefix_expression(),
+                    Arithmetic::MUL => todo!(),
+                    Arithmetic::DIV => todo!(),
+                    Arithmetic::FDIV => todo!(),
+                    Arithmetic::MOD => todo!(),
+                    Arithmetic::POW => todo!(),
+                    Arithmetic::INC => todo!(),
+                    Arithmetic::DEC => todo!(),
+                },
                 TokenType::BITOP(_) => todo!(),
-                TokenType::LOGICOP(_) => todo!(),
+                TokenType::LOGICOP(logicop) => {
+                    match logicop {
+                        LogicOp::AND => todo!(),
+                        LogicOp::OR => todo!(),
+                        LogicOp::NOT => return self.parse_prefix_expression(),
+                    }
+                },
                 TokenType::KEYWORD(_) => todo!(),
             }
         }

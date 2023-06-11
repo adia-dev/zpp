@@ -92,8 +92,6 @@ mod lexer_tests {
         for (key, value) in tokens.into_iter() {
             let tok: Token = lexer.next_token();
 
-            // println!("type: {}, value: {}", tok.t, tok.value);
-
             assert_eq!(tok.t, key);
             assert_eq!(tok.value, value);
         }
@@ -134,8 +132,6 @@ mod lexer_tests {
 
         for (key, value, line) in tokens.into_iter() {
             let tok: Token = lexer.next_token();
-
-            // println!("type: {}, value: {}", tok.t, tok.value);
 
             assert_eq!(tok.t, key);
             assert_eq!(tok.value, value);
@@ -237,8 +233,6 @@ mod lexer_tests {
         for (key, value) in tokens {
             let token = lexer.next_token();
 
-            // println!("type: {:#?}, value: {:#?}", token.t, token.value);
-
             assert_eq!(token.t, key);
             assert_eq!(token.value, value);
         }
@@ -267,8 +261,6 @@ mod lexer_tests {
 
         for (key, value) in tokens {
             let token = lexer.next_token();
-
-            // println!("key: {:#?}, value: {:#?}", token.t, token.value);
 
             assert_eq!(token.t, key);
             assert_eq!(token.value, value);

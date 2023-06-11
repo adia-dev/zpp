@@ -50,7 +50,6 @@ impl REPL {
             let token = lexer.next_token();
             match token.t {
                 TokenType::ILLEGAL => {
-                    println!("Illegal token encountered: {}", token.value);
                     panic!("ILLEGAL TOKEN ENCOUNTERED");
                 }
                 TokenType::EOF => {
