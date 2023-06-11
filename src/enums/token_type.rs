@@ -1,3 +1,5 @@
+use std::hash::{Hash, Hasher};
+
 use super::{arithmetic::Arithmetic, bitop::Bitop, cmp::Cmp, keyword::Keyword, logicop::LogicOp};
 
 #[derive(Default, Copy, Debug, Clone, PartialEq, Eq)]
@@ -103,6 +105,12 @@ impl TokenType {
                 }
             }
         }
+    }
+}
+
+impl Hash for TokenType {
+    fn hash<H: Hasher>(&self, state: &mut H) {
+        self.to_string().hash(state);
     }
 }
 

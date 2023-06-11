@@ -8,7 +8,7 @@ use crate::{
 pub struct DeclareStatement {
     token: Token,
     pub type_specifier: Option<Token>,
-    pub identifier: Identifier,
+    pub identifier: Box<dyn Expression>,
     pub value: Option<Box<dyn Expression>>,
 }
 
@@ -16,7 +16,7 @@ impl DeclareStatement {
     pub fn new(
         token: Token,
         type_specifier: Option<Token>,
-        identifier: Identifier,
+        identifier: Box<dyn Expression>,
         value: Option<Box<dyn Expression>>,
     ) -> Self {
         Self {
@@ -36,18 +36,25 @@ impl core::fmt::Debug for DeclareStatement {
 
 impl Node for DeclareStatement {
     fn get_token(&self) -> String {
-        if let Some(type_specifier) = &self.type_specifier {
-            format!(
-                "{} {}: {} = EXPR;",
-                self.token.value, self.identifier.token.value, type_specifier.value
-            )
-        } else {
-            // self.token.value.clone()
-            format!(
-                "{} {} = EXPR;",
-                self.token.value, self.identifier.token.value
-            )
+        self.token.value.to_string()
+    }
+}
+
+impl ToString for DeclareStatement {
+    fn to_string(&self) -> String {
+        let mut s = format!("{} {}", self.token.value.to_string(), self.identifier.to_string());
+
+        if let Some(t) = &self.type_specifier {
+            s.push_str(format!(": {}", t.value.to_string()).as_str());
+        };
+
+        if let Some(v) = &self.value {
+            s.push_str(format!(" = {}", v.to_string()).as_str());
         }
+
+        s.push(';');
+
+        s
     }
 }
 
@@ -73,15 +80,13 @@ mod tests {
 
     #[test]
     pub fn test_declare_statements() {
-        let code = r#"
-            let x = 5;
+        let code = r#"let x = 5;
             let name: string = Abdoulaye Dia;
             const WINDOW_WIDTH: uint16_t = 1440;
             let later;
             const PI: float = 3.14;
             let is_active: bool = true;
-            auto is_active= user.is_active();
-        "#;
+            auto is_active= user.is_active();"#;
 
         let mut lexer = Lexer::new(code.chars().collect());
         let mut parser = Parser::new(&mut lexer);
@@ -100,11 +105,15 @@ mod tests {
             Token::new(TokenType::IDENT, "x", None, None, None),
             "x".to_string(),
         );
-        let declare_statement = DeclareStatement::new(token, type_specifier, identifier, None);
+
+        println!("identifier: {:#?}", identifier);
+
+        let declare_statement = DeclareStatement::new(token, type_specifier, Box::new(identifier), None);
+        println!("declare_statement: {:#?}", declare_statement);
+
 
         assert_eq!(declare_statement.token.value, "let");
         assert_eq!(declare_statement.type_specifier.unwrap().value, "int");
-        assert_eq!(declare_statement.identifier.token.value, "x");
         assert!(declare_statement.value.is_none());
     }
 }

@@ -3,7 +3,7 @@ use crate::{
     traits::{Expression, Node},
 };
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct Identifier {
     pub token: Token,
     pub value: String,
@@ -17,6 +17,12 @@ impl Identifier {
 
 impl Node for Identifier {
     fn get_token(&self) -> String {
+        self.token.value.clone()
+    }
+}
+
+impl ToString for Identifier {
+    fn to_string(&self) -> String {
         self.token.value.clone()
     }
 }

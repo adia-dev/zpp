@@ -1,20 +1,25 @@
-use std::{panic, println, unimplemented};
+use std::{collections::HashMap, panic, println, unimplemented};
+pub mod precedence;
 
 use crate::{
     ast::{
         expressions::identifier_expression::Identifier,
         program::Program,
-        statements::{declare_statement::DeclareStatement, return_statement::ReturnStatement},
+        statements::{
+            declare_statement::DeclareStatement, expression_statement::ExpressionStatement,
+            return_statement::ReturnStatement,
+        },
     },
     enums::{keyword::Keyword, token_type::TokenType},
     lexer::Lexer,
     token::Token,
-    traits::Statement,
+    traits::{Expression, Statement},
 };
+
+use self::precedence::Precedence;
 
 type Result<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
-#[derive(Debug)]
 pub struct Parser<'a> {
     lexer: &'a mut Lexer,
     current_token: Option<Token>,
@@ -31,7 +36,6 @@ impl<'a> Parser<'a> {
 
         new_parser.next_token();
         new_parser.next_token();
-
         new_parser
     }
 
@@ -96,24 +100,25 @@ impl<'a> Parser<'a> {
                     Keyword::FALSE => todo!(),
                     Keyword::UNDEFINED => todo!(),
                 },
-                _ => Err(format!("Unexpected keyword token encountered: {:#?}", token).into()),
+                _ => self.parse_expression_statement(),
             }
         } else {
             Err("Expected a TOKEN, None was given.".into())
         }
     }
 
-    fn parse_identifier(&mut self) -> Result<Identifier> {
-        if !self.cmp_next_token_type(TokenType::IDENT) {
-            return Err("Could not find a valid IDENTIFIER".into());
+    fn parse_identifier(token: Option<Token>) -> Result<Box<dyn Expression>> {
+        if let Some(tok) = token {
+            if tok.t != TokenType::IDENT {
+                return Err(
+                    format!("Expected an IDENTIFIER token, got: {}", tok.t.to_string()).into(),
+                );
+            }
+
+            Ok(Box::new(Identifier::new(tok.clone(), tok.t.to_string())))
+        } else {
+            Err("Expected an INDENTIFIER token, got: `None`.".into())
         }
-
-        let identifier_token = self.next_token.clone().unwrap();
-
-        Ok(Identifier::new(
-            identifier_token.clone(),
-            identifier_token.t.to_string(),
-        ))
     }
 
     fn parse_type_specifier(&mut self) -> Option<Token> {
@@ -135,7 +140,7 @@ impl<'a> Parser<'a> {
         // (LET | CONST | VAR | AUTO) INDENT SEMICOLON
         // (LET | CONST | VAR | AUTO) INDENT COLON INDENT SEMICOLON
 
-        let identifier = self.parse_identifier()?;
+        let identifier = Self::parse_identifier(self.next_token.clone())?;
         let mut stmt =
             DeclareStatement::new(self.current_token.clone().unwrap(), None, identifier, None);
 
@@ -212,6 +217,55 @@ impl<'a> Parser<'a> {
         let stmt = ReturnStatement::new(self.current_token.clone().unwrap(), None);
 
         return Ok(Box::new(stmt));
+    }
+
+    fn parse_expression_statement(&mut self) -> Result<Box<dyn Statement>> {
+        if self.current_token.is_none() {
+            return Err("Error: Expected an Expression Statement, received: None.".into());
+        }
+
+        let expression = self.parse_expression(Precedence::Lowest)?;
+        let stmt = ExpressionStatement::new(self.current_token.clone().unwrap(), expression);
+
+        if self.cmp_next_token_type(TokenType::SEMICOLON) {
+            self.next_token();
+        }
+
+        return Ok(Box::new(stmt));
+    }
+
+    fn parse_expression(&mut self, _precedence: Precedence) -> Result<Box<dyn Expression>> {
+        println!("Parsing an expression");
+        if let Some(token) = &self.current_token {
+            match token.t {
+                TokenType::ILLEGAL => todo!(),
+                TokenType::EOF => todo!(),
+                TokenType::IDENT => return Self::parse_identifier(self.current_token.clone()),
+                TokenType::INT => todo!(),
+                TokenType::ASSIGN => todo!(),
+                TokenType::DOT => todo!(),
+                TokenType::COMMA => todo!(),
+                TokenType::COLON => todo!(),
+                TokenType::SEMICOLON => todo!(),
+                TokenType::DQUOTE => todo!(),
+                TokenType::QUOTE => todo!(),
+                TokenType::BACKTICK => todo!(),
+                TokenType::LPAREN => todo!(),
+                TokenType::RPAREN => todo!(),
+                TokenType::LBRACE => todo!(),
+                TokenType::RBRACE => todo!(),
+                TokenType::RANGE => todo!(),
+                TokenType::IRANGE => todo!(),
+                TokenType::SCOPE => todo!(),
+                TokenType::CMP(_) => todo!(),
+                TokenType::ARITHMETIC(_) => todo!(),
+                TokenType::BITOP(_) => todo!(),
+                TokenType::LOGICOP(_) => todo!(),
+                TokenType::KEYWORD(_) => todo!(),
+            }
+        }
+
+        Err("Could not parse an expression.".into())
     }
 }
 

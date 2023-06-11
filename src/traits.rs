@@ -1,7 +1,7 @@
-use std::write;
 use crate::parser::Parser;
+use std::write;
 
-pub trait Node {
+pub trait Node: ToString {
     fn get_token(&self) -> String;
 }
 
@@ -11,10 +11,9 @@ pub trait Statement: Node {
 
 impl core::fmt::Debug for dyn Statement {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "Statement{{{}}}", self.get_token())
+        write!(f, "Statement{{{}}}", self.to_string())
     }
 }
-
 
 pub trait Expression: Node {
     fn eval(&self) -> String;
@@ -25,4 +24,3 @@ impl core::fmt::Debug for dyn Expression {
         write!(f, "Expression{{{}}}", self.eval())
     }
 }
-

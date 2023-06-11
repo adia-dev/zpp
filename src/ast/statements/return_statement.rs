@@ -22,7 +22,17 @@ impl core::fmt::Debug for ReturnStatement {
 
 impl Node for ReturnStatement {
     fn get_token(&self) -> String {
-        format!("return EXPR;")
+        self.token.value.to_string()
+    }
+}
+
+impl ToString for ReturnStatement {
+    fn to_string(&self) -> String {
+        if let Some(v) = &self.value {
+            format!("return {};", v.to_string())
+        } else {
+            "return;".to_string()
+        }
     }
 }
 
@@ -52,8 +62,6 @@ mod tests {
         let program = parser.parse();
 
         assert!(program.is_ok());
-
-        println!("{:#?}", program);
 
         assert_eq!(program.unwrap().statements.len(), 5);
     }
