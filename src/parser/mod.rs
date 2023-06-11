@@ -3,7 +3,7 @@ pub mod precedence;
 
 use crate::{
     ast::{
-        expressions::identifier_expression::Identifier,
+        expressions::{identifier_expression::Identifier, integer_literal::IntegerLiteral},
         program::Program,
         statements::{
             declare_statement::DeclareStatement, expression_statement::ExpressionStatement,
@@ -116,6 +116,20 @@ impl<'a> Parser<'a> {
             }
 
             Ok(Box::new(Identifier::new(tok.clone(), tok.t.to_string())))
+        } else {
+            Err("Expected an INDENTIFIER token, got: `None`.".into())
+        }
+    }
+
+    fn parse_integer_literal(&mut self) -> Result<Box<dyn Expression>> {
+        if let Some(token) = &self.current_token {
+            match token.value.parse::<i32>() {
+                Ok(int) => {
+                    let integer = IntegerLiteral::new(token.clone(), int);
+                    Ok(Box::new(integer))
+                }
+                Err(_e) => Err("Expected an INDENTIFIER token, got: `None`.".into()),
+            }
         } else {
             Err("Expected an INDENTIFIER token, got: `None`.".into())
         }
@@ -235,13 +249,12 @@ impl<'a> Parser<'a> {
     }
 
     fn parse_expression(&mut self, _precedence: Precedence) -> Result<Box<dyn Expression>> {
-        println!("Parsing an expression");
         if let Some(token) = &self.current_token {
             match token.t {
                 TokenType::ILLEGAL => todo!(),
                 TokenType::EOF => todo!(),
                 TokenType::IDENT => return Self::parse_identifier(self.current_token.clone()),
-                TokenType::INT => todo!(),
+                TokenType::INT => return self.parse_integer_literal(),
                 TokenType::ASSIGN => todo!(),
                 TokenType::DOT => todo!(),
                 TokenType::COMMA => todo!(),
