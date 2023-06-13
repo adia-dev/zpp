@@ -22,11 +22,12 @@ use crate::{
 
 use self::{error::ParserError, precedence::Precedence};
 
-type Result<T> = std::result::Result<T, Box<dyn std::error::Error>>;
+type Result<T> = std::result::Result<T, ParserError>;
 type ExpressionParserFn<'a> = fn(&mut Parser<'a>) -> Result<Box<dyn Expression>>;
 
 pub struct Parser<'a> {
     lexer: &'a mut Lexer,
+    errors: Vec<ParserError>,
     current_token: Option<Token>,
     next_token: Option<Token>,
     prefix_funs: HashMap<TokenType, ExpressionParserFn<'a>>,
@@ -40,6 +41,7 @@ impl<'a> Parser<'a> {
 
         let mut new_parser = Self {
             lexer,
+            errors: Vec::new(),
             current_token: None,
             next_token: None,
             prefix_funs,
@@ -81,12 +83,18 @@ impl<'a> Parser<'a> {
                     break;
                 }
 
-                let parsed_stmt = self.parse_statement()?;
+                let parsed_stmt = match self.parse_statement() {
+                    Ok(stmt) => stmt,
+                    Err(err) => {
+                        self.errors.push(err.into());
+                        return Err(ParserError::unexpected("An error occurred.".to_owned()));
+                    }
+                };
                 new_program.statements.push(parsed_stmt);
 
                 self.next_token();
             } else {
-                return Err(Box::new(ParserError::unexpected_eof()));
+                return Err(ParserError::unexpected_eof());
             }
         }
 
@@ -115,22 +123,19 @@ impl<'a> Parser<'a> {
                 _ => self.parse_expression_statement(),
             }
         } else {
-            Err(Box::new(ParserError::unexpected_eof()))
+            Err(ParserError::unexpected_eof())
         }
     }
 
     fn parse_identifier(&mut self) -> Result<Box<dyn Expression>> {
         if let Some(tok) = &self.current_token {
             if tok.t != TokenType::IDENT {
-                return Err(Box::new(ParserError::unexpected_token(
-                    tok.clone(),
-                    TokenType::IDENT,
-                )));
+                return Err(ParserError::unexpected_token(tok.clone(), TokenType::IDENT));
             }
 
             Ok(Box::new(Identifier::new(tok.clone(), tok.t.to_string())))
         } else {
-            Err(Box::new(ParserError::unexpected_eof()))
+            Err(ParserError::unexpected_eof())
         }
     }
 
@@ -141,10 +146,10 @@ impl<'a> Parser<'a> {
                     let integer = IntegerLiteral::new(token.clone(), int);
                     Ok(Box::new(integer))
                 }
-                Err(_) => Err(Box::new(ParserError::invalid_assignment_target())),
+                Err(_) => Err(ParserError::invalid_assignment_target()),
             }
         } else {
-            Err(Box::new(ParserError::unexpected_eof()))
+            Err(ParserError::unexpected_eof())
         }
     }
 
@@ -159,7 +164,7 @@ impl<'a> Parser<'a> {
                 rhs,
             )))
         } else {
-            Err(Box::new(ParserError::unexpected_eof()))
+            Err(ParserError::unexpected_eof())
         }
     }
 
@@ -185,15 +190,12 @@ impl<'a> Parser<'a> {
         let identifier: Option<Box<dyn Expression>>;
         if let Some(tok) = &self.next_token {
             if tok.t != TokenType::IDENT {
-                return Err(Box::new(ParserError::unexpected_token(
-                    tok.clone(),
-                    TokenType::IDENT,
-                )));
+                return Err(ParserError::unexpected_token(tok.clone(), TokenType::IDENT));
             }
 
             identifier = Some(Box::new(Identifier::new(tok.clone(), tok.t.to_string())))
         } else {
-            return Err(Box::new(ParserError::unexpected_eof()));
+            return Err(ParserError::unexpected_eof());
         }
 
         let mut stmt = DeclareStatement::new(
@@ -216,11 +218,14 @@ impl<'a> Parser<'a> {
         }
 
         if !self.cmp_next_token_type(TokenType::ASSIGN) {
-            return Err(format!(
-                "Expected an ASSIGN Token, UNEXPECTED: {:#?}",
-                self.next_token
-            )
-            .into());
+            if let Some(_) = &self.next_token {
+                return Err(ParserError::unexpected_token(
+                    self.next_token.clone().unwrap(),
+                    TokenType::ASSIGN,
+                ));
+            } else {
+                return Err(ParserError::unexpected_eof());
+            }
         }
 
         self.next_token();
@@ -234,11 +239,14 @@ impl<'a> Parser<'a> {
                 if self.cmp_current_token_type(TokenType::EOF)
                     || self.cmp_current_token_type(TokenType::ILLEGAL)
                 {
-                    return Err(format!(
-                        "Expected a SEMICOLON Token, UNEXPECTED: {:#?}",
-                        self.current_token
-                    )
-                    .into());
+                    if let Some(_) = &self.current_token {
+                        return Err(ParserError::unexpected_token(
+                            self.current_token.clone().unwrap(),
+                            TokenType::SEMICOLON,
+                        ));
+                    } else {
+                        return Err(ParserError::unexpected_eof());
+                    }
                 }
 
                 self.next_token();
@@ -260,11 +268,14 @@ impl<'a> Parser<'a> {
                 if self.cmp_current_token_type(TokenType::EOF)
                     || self.cmp_current_token_type(TokenType::ILLEGAL)
                 {
-                    return Err(format!(
-                        "Expected a SEMICOLON Token, UNEXPECTED: {:#?}",
-                        self.current_token
-                    )
-                    .into());
+                    if let Some(_) = &self.current_token {
+                        return Err(ParserError::unexpected_token(
+                            self.current_token.clone().unwrap(),
+                            TokenType::SEMICOLON,
+                        ));
+                    } else {
+                        return Err(ParserError::unexpected_eof());
+                    }
                 }
 
                 self.next_token();
@@ -280,7 +291,7 @@ impl<'a> Parser<'a> {
 
     fn parse_expression_statement(&mut self) -> Result<Box<dyn Statement>> {
         if self.current_token.is_none() {
-            return Err("Error: Expected an Expression Statement, received: None.".into());
+            return Err(ParserError::unexpected_eof());
         }
 
         let expression = self.parse_expression(Precedence::Lowest)?;
@@ -344,7 +355,15 @@ impl<'a> Parser<'a> {
             }
         }
 
-        Err(Box::new(ParserError::invalid_expression()))
+        Err(ParserError::invalid_expression())
+    }
+
+    pub fn errors(&self) -> &[ParserError] {
+        self.errors.as_ref()
+    }
+
+    pub fn set_errors(&mut self, errors: Vec<ParserError>) {
+        self.errors = errors;
     }
 }
 

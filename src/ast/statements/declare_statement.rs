@@ -90,7 +90,7 @@ mod tests {
             let later;
             const PI: float = 3.14;
             let is_active: bool = true;
-            auto is_active= user.is_active();"#;
+            auto is_active = user.is_active();"#;
 
         let mut lexer = Lexer::new(code.chars().collect());
         let mut parser = Parser::new(&mut lexer);

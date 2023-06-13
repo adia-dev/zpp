@@ -4,8 +4,9 @@ use crate::{enums::token_type::TokenType, token::Token};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum ParserErrorCode {
-    UnexpectedToken = 1_000,
+    Unexpected = 1_000,
     UnexpectedEOF,
+    UnexpectedToken,
     InvalidExpression,
     MissingSemicolon,
     UnexpectedCharacter,
@@ -15,6 +16,12 @@ pub enum ParserErrorCode {
 impl Display for ParserErrorCode {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "{:?}", self)
+    }
+}
+
+impl From<Box<dyn Error>> for ParserError {
+    fn from(error: Box<dyn Error>) -> Self {
+        ParserError::unexpected(error.to_string())
     }
 }
 
@@ -42,6 +49,14 @@ impl ParserError {
             at,
             to,
         }
+    }
+
+    pub fn unexpected(error: String) -> ParserError {
+        ParserErrorBuilder::new(
+            ParserErrorCode::Unexpected,
+            format!("Unexpected: {}", error),
+        )
+        .build()
     }
 
     pub fn unexpected_token(token: Token, expected: TokenType) -> Self {
@@ -80,6 +95,7 @@ impl ParserError {
         )
         .build()
     }
+
 
     pub fn code(&self) -> &ParserErrorCode {
         &self.code
@@ -120,6 +136,7 @@ impl ParserError {
     pub fn set_to(&mut self, to: Option<usize>) {
         self.to = to;
     }
+
 }
 
 impl Error for ParserError {}
@@ -150,6 +167,9 @@ impl ParserErrorBuilder {
     }
 
     pub fn with_token(mut self, token: Token) -> Self {
+        if let Some(line) = token.line {
+            self.at = Some(line);
+        }
         self.token = Some(token);
         self
     }
@@ -211,7 +231,7 @@ mod tests {
         assert_eq!(error.code(), &ParserErrorCode::UnexpectedToken);
         assert_eq!(error.message(), "Unexpected token");
         assert_eq!(error.token(), Some(&token));
-        assert_eq!(error.at(), None);
+        assert_eq!(error.at(), Some(1));
         assert_eq!(error.to(), None);
     }
 
