@@ -32,3 +32,26 @@ impl Expression for Identifier {
         "".to_owned()
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use crate::{lexer::Lexer, parser::Parser};
+
+    #[test]
+    pub fn test_identifier_expression() {
+        let code = r#"
+            let x = 5;
+            var name: String;
+        "#;
+
+        let mut lexer = Lexer::new(code.chars().collect());
+        let mut parser = Parser::new(&mut lexer);
+        let program = parser.parse();
+
+        assert!(program.is_ok());
+
+        let statements = program.unwrap().statements;
+
+        assert_eq!(statements.len(), 2);
+    }
+}

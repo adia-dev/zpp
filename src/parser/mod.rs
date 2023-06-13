@@ -13,7 +13,7 @@ use crate::{
             return_statement::ReturnStatement,
         },
     },
-    enums::{arithmetic::Arithmetic, keyword::Keyword, token_type::TokenType, logicop::LogicOp},
+    enums::{arithmetic::Arithmetic, keyword::Keyword, logicop::LogicOp, token_type::TokenType},
     lexer::Lexer,
     token::Token,
     traits::{Expression, Statement},
@@ -22,19 +22,27 @@ use crate::{
 use self::precedence::Precedence;
 
 type Result<T> = std::result::Result<T, Box<dyn std::error::Error>>;
+type ExpressionParserFn<'a> = fn(&mut Parser<'a>) -> Result<Box<dyn Expression>>;
 
 pub struct Parser<'a> {
     lexer: &'a mut Lexer,
     current_token: Option<Token>,
     next_token: Option<Token>,
+    prefix_funs: HashMap<TokenType, ExpressionParserFn<'a>>,
+    infix_funs: HashMap<TokenType, ExpressionParserFn<'a>>,
 }
 
 impl<'a> Parser<'a> {
     pub fn new(lexer: &'a mut Lexer) -> Self {
+        let mut prefix_funs: HashMap<TokenType, ExpressionParserFn<'a>> = HashMap::new();
+        prefix_funs.insert(TokenType::IDENT, Self::parse_identifier);
+
         let mut new_parser = Self {
             lexer,
             current_token: None,
             next_token: None,
+            prefix_funs,
+            infix_funs: HashMap::new(), // later
         };
 
         new_parser.next_token();
@@ -110,8 +118,8 @@ impl<'a> Parser<'a> {
         }
     }
 
-    fn parse_identifier(token: Option<Token>) -> Result<Box<dyn Expression>> {
-        if let Some(tok) = token {
+    fn parse_identifier(&mut self) -> Result<Box<dyn Expression>> {
+        if let Some(tok) = &self.current_token {
             if tok.t != TokenType::IDENT {
                 return Err(
                     format!("Expected an IDENTIFIER token, got: {}", tok.t.to_string()).into(),
@@ -172,9 +180,25 @@ impl<'a> Parser<'a> {
         // (LET | CONST | VAR | AUTO) INDENT SEMICOLON
         // (LET | CONST | VAR | AUTO) INDENT COLON INDENT SEMICOLON
 
-        let identifier = Self::parse_identifier(self.next_token.clone())?;
-        let mut stmt =
-            DeclareStatement::new(self.current_token.clone().unwrap(), None, identifier, None);
+        let identifier: Option<Box<dyn Expression>>;
+        if let Some(tok) = &self.next_token {
+            if tok.t != TokenType::IDENT {
+                return Err(
+                    format!("Expected an IDENTIFIER token, got: {}", tok.t.to_string()).into(),
+                );
+            }
+
+            identifier = Some(Box::new(Identifier::new(tok.clone(), tok.t.to_string())))
+        } else {
+            return Err("Expected an INDENTIFIER token, got: `None`.".into());
+        }
+
+        let mut stmt = DeclareStatement::new(
+            self.current_token.clone().unwrap(),
+            None,
+            identifier.unwrap(),
+            None,
+        );
 
         self.next_token();
 
@@ -267,11 +291,18 @@ impl<'a> Parser<'a> {
     }
 
     fn parse_expression(&mut self, _precedence: Precedence) -> Result<Box<dyn Expression>> {
+        if let Some(fun) = self
+            .prefix_funs
+            .get(&self.current_token.as_ref().unwrap().t)
+        {
+            return fun(self);
+        }
+
         if let Some(token) = &self.current_token {
             match token.t {
                 TokenType::ILLEGAL => todo!(),
                 TokenType::EOF => todo!(),
-                TokenType::IDENT => return Self::parse_identifier(self.current_token.clone()),
+                TokenType::IDENT => return self.parse_identifier(),
                 TokenType::INT => return self.parse_integer_literal(),
                 TokenType::ASSIGN => todo!(),
                 TokenType::DOT => todo!(),
@@ -301,12 +332,10 @@ impl<'a> Parser<'a> {
                     Arithmetic::DEC => todo!(),
                 },
                 TokenType::BITOP(_) => todo!(),
-                TokenType::LOGICOP(logicop) => {
-                    match logicop {
-                        LogicOp::AND => todo!(),
-                        LogicOp::OR => todo!(),
-                        LogicOp::NOT => return self.parse_prefix_expression(),
-                    }
+                TokenType::LOGICOP(logicop) => match logicop {
+                    LogicOp::AND => todo!(),
+                    LogicOp::OR => todo!(),
+                    LogicOp::NOT => return self.parse_prefix_expression(),
                 },
                 TokenType::KEYWORD(_) => todo!(),
             }
