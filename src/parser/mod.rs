@@ -38,6 +38,15 @@ impl<'a> Parser<'a> {
     pub fn new(lexer: &'a mut Lexer) -> Self {
         let mut prefix_funs: HashMap<TokenType, ExpressionParserFn<'a>> = HashMap::new();
         prefix_funs.insert(TokenType::IDENT, Self::parse_identifier);
+        prefix_funs.insert(TokenType::INT, Self::parse_integer_literal_expression);
+        prefix_funs.insert(
+            TokenType::ARITHMETIC(Arithmetic::MINUS),
+            Self::parse_prefix_expression,
+        );
+        prefix_funs.insert(
+            TokenType::LOGICOP(LogicOp::NOT),
+            Self::parse_prefix_expression,
+        );
 
         let mut new_parser = Self {
             lexer,
@@ -139,7 +148,7 @@ impl<'a> Parser<'a> {
         }
     }
 
-    fn parse_integer_literal(&mut self) -> Result<Box<dyn Expression>> {
+    fn parse_integer_literal_expression(&mut self) -> Result<Box<dyn Expression>> {
         if let Some(token) = &self.current_token {
             match token.value.parse::<i32>() {
                 Ok(int) => {
@@ -305,57 +314,18 @@ impl<'a> Parser<'a> {
     }
 
     fn parse_expression(&mut self, _precedence: Precedence) -> Result<Box<dyn Expression>> {
-        if let Some(fun) = self
-            .prefix_funs
-            .get(&self.current_token.as_ref().unwrap().t)
-        {
-            return fun(self);
-        }
-
         if let Some(token) = &self.current_token {
-            match token.t {
-                TokenType::ILLEGAL => todo!(),
-                TokenType::EOF => todo!(),
-                TokenType::IDENT => return self.parse_identifier(),
-                TokenType::INT => return self.parse_integer_literal(),
-                TokenType::ASSIGN => todo!(),
-                TokenType::DOT => todo!(),
-                TokenType::COMMA => todo!(),
-                TokenType::COLON => todo!(),
-                TokenType::SEMICOLON => todo!(),
-                TokenType::DQUOTE => todo!(),
-                TokenType::QUOTE => todo!(),
-                TokenType::BACKTICK => todo!(),
-                TokenType::LPAREN => todo!(),
-                TokenType::RPAREN => todo!(),
-                TokenType::LBRACE => todo!(),
-                TokenType::RBRACE => todo!(),
-                TokenType::RANGE => todo!(),
-                TokenType::IRANGE => todo!(),
-                TokenType::SCOPE => todo!(),
-                TokenType::CMP(_) => todo!(),
-                TokenType::ARITHMETIC(arithmetic) => match arithmetic {
-                    Arithmetic::PLUS => todo!(),
-                    Arithmetic::MINUS => return self.parse_prefix_expression(),
-                    Arithmetic::MUL => todo!(),
-                    Arithmetic::DIV => todo!(),
-                    Arithmetic::FDIV => todo!(),
-                    Arithmetic::MOD => todo!(),
-                    Arithmetic::POW => todo!(),
-                    Arithmetic::INC => todo!(),
-                    Arithmetic::DEC => todo!(),
-                },
-                TokenType::BITOP(_) => todo!(),
-                TokenType::LOGICOP(logicop) => match logicop {
-                    LogicOp::AND => todo!(),
-                    LogicOp::OR => todo!(),
-                    LogicOp::NOT => return self.parse_prefix_expression(),
-                },
-                TokenType::KEYWORD(_) => todo!(),
+            if let Some(fun) = self
+                .prefix_funs
+                .get(&token.t)
+            {
+                return fun(self);
+            }else {
+                Err(ParserError::invalid_expression())
             }
+        } else {
+            Err(ParserError::unexpected_eof())
         }
-
-        Err(ParserError::invalid_expression())
     }
 
     pub fn errors(&self) -> &[ParserError] {
