@@ -1,4 +1,7 @@
-use std::hash::{Hash, Hasher};
+use std::{
+    fmt::Display,
+    hash::{Hash, Hasher},
+};
 
 use super::{arithmetic::Arithmetic, bitop::Bitop, cmp::Cmp, keyword::Keyword, logicop::LogicOp};
 
@@ -29,6 +32,12 @@ pub enum TokenType {
     BITOP(Bitop),           // Represents bitwise operators
     LOGICOP(LogicOp),       // Represents logical operators
     KEYWORD(Keyword),       // Represents a keyword (custom type)
+}
+
+impl Display for TokenType {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{:?}", self)
+    }
 }
 
 impl TokenType {

@@ -1,4 +1,5 @@
 use std::{collections::HashMap, panic, println, unimplemented};
+pub mod error;
 pub mod precedence;
 
 use crate::{
@@ -19,7 +20,7 @@ use crate::{
     traits::{Expression, Statement},
 };
 
-use self::precedence::Precedence;
+use self::{error::ParserError, precedence::Precedence};
 
 type Result<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 type ExpressionParserFn<'a> = fn(&mut Parser<'a>) -> Result<Box<dyn Expression>>;
@@ -85,7 +86,7 @@ impl<'a> Parser<'a> {
 
                 self.next_token();
             } else {
-                return Err("Error parsing an apparant `None` token in the program".into());
+                return Err(Box::new(ParserError::unexpected_eof()));
             }
         }
 
@@ -114,21 +115,22 @@ impl<'a> Parser<'a> {
                 _ => self.parse_expression_statement(),
             }
         } else {
-            Err("Expected a TOKEN, None was given.".into())
+            Err(Box::new(ParserError::unexpected_eof()))
         }
     }
 
     fn parse_identifier(&mut self) -> Result<Box<dyn Expression>> {
         if let Some(tok) = &self.current_token {
             if tok.t != TokenType::IDENT {
-                return Err(
-                    format!("Expected an IDENTIFIER token, got: {}", tok.t.to_string()).into(),
-                );
+                return Err(Box::new(ParserError::unexpected_token(
+                    tok.clone(),
+                    TokenType::IDENT,
+                )));
             }
 
             Ok(Box::new(Identifier::new(tok.clone(), tok.t.to_string())))
         } else {
-            Err("Expected an INDENTIFIER token, got: `None`.".into())
+            Err(Box::new(ParserError::unexpected_eof()))
         }
     }
 
@@ -139,10 +141,10 @@ impl<'a> Parser<'a> {
                     let integer = IntegerLiteral::new(token.clone(), int);
                     Ok(Box::new(integer))
                 }
-                Err(_e) => Err("Expected an INDENTIFIER token, got: `None`.".into()),
+                Err(_) => Err(Box::new(ParserError::invalid_assignment_target())),
             }
         } else {
-            Err("Expected an INDENTIFIER token, got: `None`.".into())
+            Err(Box::new(ParserError::unexpected_eof()))
         }
     }
 
@@ -157,7 +159,7 @@ impl<'a> Parser<'a> {
                 rhs,
             )))
         } else {
-            Err("Expected an INDENTIFIER token, got: `None`.".into())
+            Err(Box::new(ParserError::unexpected_eof()))
         }
     }
 
@@ -183,14 +185,15 @@ impl<'a> Parser<'a> {
         let identifier: Option<Box<dyn Expression>>;
         if let Some(tok) = &self.next_token {
             if tok.t != TokenType::IDENT {
-                return Err(
-                    format!("Expected an IDENTIFIER token, got: {}", tok.t.to_string()).into(),
-                );
+                return Err(Box::new(ParserError::unexpected_token(
+                    tok.clone(),
+                    TokenType::IDENT,
+                )));
             }
 
             identifier = Some(Box::new(Identifier::new(tok.clone(), tok.t.to_string())))
         } else {
-            return Err("Expected an INDENTIFIER token, got: `None`.".into());
+            return Err(Box::new(ParserError::unexpected_eof()));
         }
 
         let mut stmt = DeclareStatement::new(
@@ -341,7 +344,7 @@ impl<'a> Parser<'a> {
             }
         }
 
-        Err("Could not parse an expression.".into())
+        Err(Box::new(ParserError::invalid_expression()))
     }
 }
 

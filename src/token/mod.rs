@@ -1,6 +1,6 @@
 use crate::enums::token_type::TokenType;
 
-#[derive(Default, Clone, Debug)]
+#[derive(Default, Clone, Debug, PartialEq, Eq)]
 pub struct Token {
     // t stands for type. which is a token_type word in rust :/
     pub t: TokenType,
